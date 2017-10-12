@@ -11,6 +11,7 @@ import java.util.EnumMap;
 import java.util.Random;
 
 import dataRecording.DataCollectorController;
+import pacman.controllers.Assignment3.MachineLearningPacman;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
 import pacman.controllers.KeyBoardInput;
@@ -47,12 +48,18 @@ public class Executor
 	{
 		Executor exec=new Executor();
 
-		
-		//run multiple games in batch mode - good for testing.
 		int numTrials=10;
-		//exec.runExperiment(new RandomPacMan(),new RandomGhosts(),numTrials);
-		 
-		
+		boolean visual=true;
+
+		//Switch between these:
+		//exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual); //Standard game!
+		exec.runGameTimed(new MachineLearningPacman(), new StarterGhosts(), visual); //Custom pacman that is run by ML.
+
+
+
+
+
+        //exec.runExperiment(new RandomPacMan(),new RandomGhosts(),numTrials);
 		/*
 		//run a game in synchronous mode: game waits until controllers respond.
 		int delay=5;
@@ -62,10 +69,10 @@ public class Executor
 		
 		///*
 		//run the game in asynchronous mode.
-		boolean visual=true;
+
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
-//		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
-		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);
+
+//		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);
 		//*/
 		
 		/*
