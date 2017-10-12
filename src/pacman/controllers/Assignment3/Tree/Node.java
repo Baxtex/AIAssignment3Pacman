@@ -13,11 +13,16 @@ public class Node {
     private final List<Node> children = new ArrayList<>();
 
     private Node parent;
-    private final MOVE move;
-    private Attribute attribute;
+    private  MOVE move;
+    private Attribute label;
 
     public Node(MOVE move) {
         this.move = move;
+    }
+
+
+    public Node(Attribute label) {
+        this.label = label;
     }
 
     public void addChild(Node child) {

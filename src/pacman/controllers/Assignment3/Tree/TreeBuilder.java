@@ -35,9 +35,9 @@ public class TreeBuilder {
     }
 
     private DataTuple[] getTestSet(DataTuple[] dataSet, int startIndex) {
-        int fortyPercent = (int) (dataSet.length -startIndex);
+        int fortyPercent = (int) (dataSet.length - startIndex);
         DataTuple[] testSet = new DataTuple[fortyPercent];
-        for (int i = 0; startIndex<dataSet.length; i++) {
+        for (int i = 0; startIndex < dataSet.length; i++) {
             testSet[i] = dataSet[startIndex];
             startIndex++;
         }
@@ -46,16 +46,17 @@ public class TreeBuilder {
 
     //Intialize the attribute list with all the attributes.
     //TODO Just some random attributes for now, maybe select other attributes.
-    private ArrayList<Attribute>  initializeAttributesList() {
+    private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
         attributes.add(Attribute.currentScore);
-        attributes.add(Attribute.mazeIndex);
-        attributes.add(Attribute.currentLevelTime);
+        attributes.add(Attribute.numOfPillsLeft);
+        attributes.add(Attribute.numberOfTotalPillsInLevel);
+        attributes.add(Attribute.pacmanPosition);
         attributes.add(Attribute.DirectionChosen);
         return attributes;
     }
 
-    private Node generateTree(DataTuple[] trainingSet, ArrayList<Attribute> attributes ) {
+    private Node generateTree(DataTuple[] trainingSet, ArrayList<Attribute> attributes) {
         Node node;
 
         if (allTuplesSameClass(trainingSet)) {
@@ -63,7 +64,7 @@ public class TreeBuilder {
         } else if (attributes.isEmpty()) {
             node = new Node(getMajorityClass(trainingSet));
         } else {
-            node = computeAttributeNode();
+            node = computeAttributeNode(trainingSet, attributes);
         }
         return node;
     }
@@ -124,31 +125,32 @@ public class TreeBuilder {
         return data.get(4).move;
     }
 
-    private Node computeAttributeNode() {
-
-        /*
-        1. Call the attribute selection method on D and the attribute list, in order to choose the current attribute A:
-            S(D, attribute list) -> A.
-
-        2. Label N as A and remove A from the attribute list.
-
-        3. For each value a j in attribute A:
-            a) Separate all tuples in D so that attribute A takes the value a j , creating the subset D j .
-            b) If D j is empty, add a child node to N labeled with the majority class in D.
-            c) Otherwise, add the resulting node from calling Generate_Tree(D j , attribute) as a child node to N.
-
-        4. Return N.
-        */
-
-        Attribute attribute = attributeSelection(); // step 1
+    private Node computeAttributeNode(DataTuple[] trainingSet, ArrayList<Attribute> attributes) {
 
 
-        return null;
+        Node node;
+        //1. Call the attribute selection method on D and the attribute list, in order to choose the current attribute A: S(D, attribute list) -> A:
+        Attribute attribute = attributeSelection();
+        // 2. Label N as A and remove A from the attribute list:
+        node = new Node(attribute);
+        attributes.remove(attribute);
+        // 3. For each value aj in attribute A:
+        List<List<DataTuple>> subSetsOfAttributesValue;
+        //    a) Separate all tuples in D so that attribute A takes the value aj , creating the subset Dj:
+        for (int i = 0; i < trainingSet.length; i++) {
+
+        }
+        //    b) If Dj is empty, add a child node to N labeled with the majority class in D:
+
+        //    c) Otherwise, add the resulting node from calling Generate_Tree(Dj , attribute) as a child node to N:
+
+        //4. Return N:
+        return node;
     }
 
     //Should be built with id3. Removes the "best" attribute from the attributes list and returns it
-    //TODO Implement
     private Attribute attributeSelection() {
+        //TODO Implement magic math.
         return null;
     }
 }
