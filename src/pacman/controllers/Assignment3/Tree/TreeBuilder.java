@@ -35,10 +35,11 @@ public class TreeBuilder {
     }
 
     private DataTuple[] getTestSet(DataTuple[] dataSet, int startIndex) {
-        int fortyPercent = (int) (dataSet.length * 0.4);
-        DataTuple[] testSet = new DataTuple[fortyPercent + 1];
-        for (int i = startIndex; i < dataSet.length; i++) {
-            testSet[i] = dataSet[i];
+        int fortyPercent = (int) (dataSet.length -startIndex);
+        DataTuple[] testSet = new DataTuple[fortyPercent];
+        for (int i = 0; startIndex<dataSet.length; i++) {
+            testSet[i] = dataSet[startIndex];
+            startIndex++;
         }
         return testSet;
     }
