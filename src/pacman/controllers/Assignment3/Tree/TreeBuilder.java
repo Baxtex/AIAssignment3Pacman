@@ -14,61 +14,70 @@ import static pacman.game.Constants.MOVE;
  */
 public class TreeBuilder {
 
-
-    private DataTuple[] trainingSet;
-    private DataTuple[] testSet;
-
-
-    private ArrayList<Attribute> attributes; //attribut listan ska hålla koll på vilka attribut vi tagit för att inte göra duplicates!
-
     public DecisionTree buildDecisionTree() {
-        splitDataSet();
-        initializeAttributesList();
-        Node tree = generateTree();
+        DataTuple[] dataSet = DataSaverLoader.LoadPacManData();
+        DataTuple[] trainingSet = getTrainingSet(dataSet);
+        DataTuple[] testSet = getTestSet(dataSet, trainingSet.length);
+        ArrayList<Attribute> attributes = initializeAttributesList();
+
+        Node tree = generateTree(trainingSet, attributes);
+
         return null;
     }
 
-    private Node generateTree() {
+    private DataTuple[] getTrainingSet(DataTuple[] dataSet) {
+        int sixtyPercent = (int) (dataSet.length * 0.6);
+        DataTuple[] trainingSet = new DataTuple[sixtyPercent];
+        for (int i = 0; i < sixtyPercent; i++) {
+            trainingSet[i] = dataSet[i];
+        }
+        return trainingSet;
+    }
+
+    private DataTuple[] getTestSet(DataTuple[] dataSet, int startIndex) {
+        int fortyPercent = (int) (dataSet.length * 0.4);
+        DataTuple[] testSet = new DataTuple[fortyPercent + 1];
+        for (int i = startIndex; i < dataSet.length; i++) {
+            testSet[i] = dataSet[i];
+        }
+        return testSet;
+    }
+
+    //Intialize the attribute list with all the attributes.
+    //TODO Just some random attributes for now, maybe select other attributes.
+    private ArrayList<Attribute>  initializeAttributesList() {
+        ArrayList<Attribute> attributes = new ArrayList<>();
+        attributes.add(Attribute.currentScore);
+        attributes.add(Attribute.mazeIndex);
+        attributes.add(Attribute.currentLevelTime);
+        attributes.add(Attribute.DirectionChosen);
+        return attributes;
+    }
+
+    private Node generateTree(DataTuple[] trainingSet, ArrayList<Attribute> attributes ) {
         Node node;
 
-        if (allTuplesSameClass()) {
+        if (allTuplesSameClass(trainingSet)) {
             node = new Node(trainingSet[0].DirectionChosen);
-        } else if (attributesListEmpty()) {
-            node = new Node(getMajorityClass());
+        } else if (attributes.isEmpty()) {
+            node = new Node(getMajorityClass(trainingSet));
         } else {
             node = computeAttributeNode();
         }
         return node;
     }
 
-    private Node computeAttributeNode() {
-
-        /*
-        1. Call the attribute selection method on D and the attribute list, in order to choose the current attribute A:
-            S(D, attribute list) -> A.
-
-        2. Label N as A and remove A from the attribute list.
-
-        3. For each value a j in attribute A:
-            a) Separate all tuples in D so that attribute A takes the value a j , creating the subset D j .
-            b) If D j is empty, add a child node to N labeled with the majority class in D.
-            c) Otherwise, add the resulting node from calling Generate_Tree(D j , attribute) as a child node to N.
-
-        4. Return N.
-        */
-
-        Attribute attribute = attributeSelection();
-
-        return null;
+    private boolean allTuplesSameClass(DataTuple[] trainingSet) {
+        MOVE move = trainingSet[0].DirectionChosen;
+        for (int i = 1; i < trainingSet.length; i++) {
+            if (trainingSet[i].DirectionChosen != move) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    //Removes the "best" attribute from the attributes list and returns it.
-    //Should be built with id3.
-    private Attribute attributeSelection() {
-        //TODO Implement
-        return null;
-    }
-    private MOVE getMajorityClass() {
+    private MOVE getMajorityClass(DataTuple[] trainingSet) {
 
         class Pair implements Comparable<Pair> {
             MOVE move;
@@ -114,48 +123,31 @@ public class TreeBuilder {
         return data.get(4).move;
     }
 
-    private boolean allTuplesSameClass() {
-        MOVE move = trainingSet[0].DirectionChosen;
-        for (int i = 1; i < trainingSet.length; i++) {
-            if (trainingSet[i].DirectionChosen != move) {
-                return false;
-            }
-        }
-        return true;
+    private Node computeAttributeNode() {
+
+        /*
+        1. Call the attribute selection method on D and the attribute list, in order to choose the current attribute A:
+            S(D, attribute list) -> A.
+
+        2. Label N as A and remove A from the attribute list.
+
+        3. For each value a j in attribute A:
+            a) Separate all tuples in D so that attribute A takes the value a j , creating the subset D j .
+            b) If D j is empty, add a child node to N labeled with the majority class in D.
+            c) Otherwise, add the resulting node from calling Generate_Tree(D j , attribute) as a child node to N.
+
+        4. Return N.
+        */
+
+        Attribute attribute = attributeSelection(); // step 1
+
+
+        return null;
     }
 
-    private boolean attributesListEmpty() {
-        return attributes.isEmpty();
-    }
-
-    //Intialize the attribute list with all the attributes.
-    private void initializeAttributesList() {
-        attributes = new ArrayList<>();
-        //TODO Just some random attributes for now, maybe select other attributes.
-        attributes.add(Attribute.currentScore);
-        attributes.add(Attribute.mazeIndex);
-        attributes.add(Attribute.currentLevelTime);
-        attributes.add(Attribute.DirectionChosen);
-    }
-
-    //Split data set into training and test set.
-    private void splitDataSet() {
-        DataTuple[] dataSet = DataSaverLoader.LoadPacManData();
-        int sixtyPercent = (int) (dataSet.length * 0.6);
-        int fortyPercent = (int) (dataSet.length * 0.4);
-
-        trainingSet = new DataTuple[sixtyPercent];
-        testSet = new DataTuple[fortyPercent + 1];
-
-        int testIndex = 0;
-        for (int i = 0; i <= dataSet.length - 1; i++) {
-
-            if (i < sixtyPercent) {
-                trainingSet[i] = dataSet[i];
-            } else {
-                testSet[testIndex] = dataSet[i];
-                testIndex++;
-            }
-        }
+    //Should be built with id3. Removes the "best" attribute from the attributes list and returns it
+    //TODO Implement
+    private Attribute attributeSelection() {
+        return null;
     }
 }
