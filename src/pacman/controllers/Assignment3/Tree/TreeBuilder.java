@@ -3,11 +3,9 @@ package pacman.controllers.Assignment3.Tree;
 import dataRecording.DataSaverLoader;
 import dataRecording.DataTuple;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static pacman.game.Constants.AWARD_LIFE_LEFT;
 import static pacman.game.Constants.MOVE;
 
 /**
@@ -15,15 +13,14 @@ import static pacman.game.Constants.MOVE;
  */
 public class TreeBuilder {
 
+    //TODO Maybe save discrete values directly in the tuple, would  probably make some statements more clean.
     public DecisionTree buildDecisionTree() {
         DataTuple[] dataSet = DataSaverLoader.LoadPacManData();
-        //TODO Discretisize the tuples
         DataTuple[] trainingSet = getTrainingSet(dataSet);
         DataTuple[] testSet = getTestSet(dataSet, trainingSet.length);
         ArrayList<Attribute> attributes = initializeAttributesList();
 
         Node tree = generateTree(trainingSet, attributes);
-
 
         return null;
     }
@@ -47,15 +44,22 @@ public class TreeBuilder {
         return testSet;
     }
 
-    //Intialize the attribute list with all the attributes.
     //TODO Just some random attributes for now, maybe select other attributes.
     private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
-        attributes.add(Attribute.currentScore);
+        attributes.add(Attribute.isBlinkyEdible);
+        attributes.add(Attribute.isInkyEdible);
+        attributes.add(Attribute.isPinkyEdible);
+        attributes.add(Attribute.isSueEdible);
+        attributes.add(Attribute.blinkyDir);
+        attributes.add(Attribute.inkyDir);
+        attributes.add(Attribute.pinkyDir);
+        attributes.add(Attribute.sueDir);
+        //   attributes.add(Attribute.numberOfTotalPillsInLevel);
         attributes.add(Attribute.numOfPillsLeft);
-        attributes.add(Attribute.numberOfTotalPillsInLevel);
-        attributes.add(Attribute.pacmanPosition);
-        attributes.add(Attribute.DirectionChosen);
+        //  attributes.add(Attribute.numberOfTotalPowerPillsInLevel);
+        attributes.add(Attribute.numPowerPillsLeft);
+
         return attributes;
     }
 
@@ -94,7 +98,7 @@ public class TreeBuilder {
 
             @Override
             public int compareTo(Pair o) {
-                return Integer.compare(numberOfTimes, o.numberOfTimes);
+                return Integer.compare(o.numberOfTimes, numberOfTimes);
             }
         }
 
@@ -125,7 +129,7 @@ public class TreeBuilder {
         data.add(down);
         data.add(left);
         Collections.sort(data);
-        return data.get(4).move;
+        return data.get(0).move; //TODO Test so this sorts right!
     }
 
     private Node computeAttributeNode(DataTuple[] trainingSet, ArrayList<Attribute> attributes) {
@@ -215,7 +219,8 @@ public class TreeBuilder {
             case sueDir:
                 return tuple.sueDir.ordinal();
             case numberOfTotalPillsInLevel:
-                return tuple.discretizeNumberOfPowerPills(tuple.numberOfTotalPillsInLevel).ordinal();
+                int nbr = tuple.discretizeNumberOfPowerPills(tuple.numberOfTotalPillsInLevel).ordinal();
+                return nbr;
             case numOfPillsLeft:
                 return tuple.discretizeNumberOfPowerPills(tuple.numOfPillsLeft).ordinal();
             case numberOfTotalPowerPillsInLevel:
@@ -239,13 +244,13 @@ public class TreeBuilder {
             case isSueEdible:
                 return 2;
             case blinkyDir:
-                return 5;
+                return 4;
             case inkyDir:
-                return 5;
+                return 4;
             case pinkyDir:
-                return 5;
+                return 4;
             case sueDir:
-                return 5;
+                return 4;
             case numberOfTotalPillsInLevel:
                 return 5;
             case numOfPillsLeft:
@@ -258,9 +263,83 @@ public class TreeBuilder {
         return -100000; //Attribute not found
     }
 
-    //Should be built with id3. Removes the "best" attribute from the attributes list and returns it
-    //TODO Implement magic math to find the best attribute and remove it from the attributes list.
+    /**
+     * Attribute selection method which is built with the ID3 algorithm.
+     * ID3 is short for Iterative Dichotomiser.
+     * It uses information gain as the criterion to choose attribute A: a function calculates how much
+     * information gain provides every candidate attribute in the list. The one with the highest gain is chosen to
+     * become A, the optimal attribut.
+     */
     private Attribute attributeSelection(DataTuple[] trainingSet, List<Attribute> attributes) {
-        return null;
+
+        class Pair implements Comparable<Pair> {
+            final Attribute attribute;
+            final double informationGain;
+
+            Pair(Attribute attribute, double informationGain) {
+                this.attribute = attribute;
+                this.informationGain = informationGain;
+            }
+
+            @Override
+            public int compareTo(Pair o) {
+                return Double.compare(o.informationGain, informationGain);
+            }
+        }
+
+        double averageInformationGain = calculateAverageInformationGain(trainingSet, attributes);
+        List<Pair> attributesInformationGain = new ArrayList<>(attributes.size());
+        for (Attribute attribute : attributes) {
+            double attributeInformationGain = averageInformationGain - calculateAttributeGain(trainingSet, attribute);
+            attributesInformationGain.add(new Pair(attribute, attributeInformationGain));
+        }
+        Collections.sort(attributesInformationGain);
+        return attributesInformationGain.get(0).attribute;
+
+    }
+
+    private double calculateAttributeGain(DataTuple[] trainingSet, Attribute attribute) {
+        int totalNumberOfTuples = trainingSet.length;
+        double informationGain = 0.0;
+        int nbrOfSubsets = getNumberOfSubsets(attribute);
+        for (int i = 0; i < nbrOfSubsets; i++) {
+            int finalI = i;
+            List<DataTuple> subSet = Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
+            double logValue = 0.0;
+            for (int j = 0; j < 5; j++) {
+                int finalJ = j;
+                long nbrOfThisDirection = subSet.stream().filter(a -> a.DirectionChosen.ordinal() == finalJ).count();
+
+                double result = ((double) nbrOfThisDirection / (double) subSet.size());
+                if (subSet.size() != 0 && result != 0) {
+                    logValue += (-result * log2(result));
+                }
+            }
+            double result = ((double) subSet.size() / (double) totalNumberOfTuples) * logValue;
+            if (result != 0) {
+                informationGain += result;
+            }
+        }
+        return informationGain;
+    }
+
+    //Should probably only be needed to be called once to be more effective
+    private double calculateAverageInformationGain(DataTuple[] trainingSet, List<Attribute> attributes) {
+        int totalNumberOfTuples = trainingSet.length;
+        double informationGain = 0.0;
+        for (int i = 0; i < 5; i++) {
+            int finalI = i;
+            long nbrOfThisDirection = Arrays.stream(trainingSet).filter(a -> a.DirectionChosen.ordinal() == finalI).count();
+            double result = ((double) nbrOfThisDirection / (double) totalNumberOfTuples);
+            if (result != 0) {
+                informationGain += (-result * log2(result));
+            }
+        }
+        return informationGain;
+    }
+
+    private double log2(double n) { //Fix: n is always 0
+        double d = (Math.log(n) / Math.log(2));
+        return d;
     }
 }
