@@ -143,13 +143,16 @@ public class TreeBuilder {
             int tupleAttributeValue = getAttributeValue(tuple, attribute);
             subSetsOfAttributesValue.get(tupleAttributeValue).add(tuple);
         }
-        //    b) If Dj is empty, add a child node to N labeled with the majority class in D:
+
         for (List<DataTuple> subSet : subSetsOfAttributesValue) {
             if (subSet.isEmpty()) {
+                //    b) If Dj is empty, add a child node to N labeled with the majority class in D:
                 node.addChild(new Node(getMajorityClass(trainingSet)));
+            } else {
+                //    c) Otherwise, add the resulting node from calling Generate_Tree(Dj , attribute) as a child node to N:
+                node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes));
             }
         }
-        //    c) Otherwise, add the resulting node from calling Generate_Tree(Dj , attribute) as a child node to N:
         //4. Return N:
         return node;
     }
@@ -256,8 +259,8 @@ public class TreeBuilder {
     }
 
     //Should be built with id3. Removes the "best" attribute from the attributes list and returns it
+    //TODO Implement magic math to find the best attribute and remove it from the attributes list.
     private Attribute attributeSelection(DataTuple[] trainingSet, List<Attribute> attributes) {
-        //TODO Implement magic math to find the best attribute and remove it from the attributes list.
         return null;
     }
 }
