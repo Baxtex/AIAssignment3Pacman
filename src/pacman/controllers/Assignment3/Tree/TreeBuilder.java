@@ -87,49 +87,27 @@ public class TreeBuilder {
     }
 
     private MOVE getMajorityClass(DataTuple[] trainingSet) {
-
-        class Pair implements Comparable<Pair> {
-            MOVE move;
-            int numberOfTimes;
-
-            Pair(MOVE move) {
-                this.move = move;
-            }
-
-            @Override
-            public int compareTo(Pair o) {
-                return Integer.compare(o.numberOfTimes, numberOfTimes);
-            }
-        }
-
-        Pair neutral = new Pair(MOVE.NEUTRAL);
-        Pair up = new Pair(MOVE.UP);
-        Pair right = new Pair(MOVE.RIGHT);
-        Pair down = new Pair(MOVE.DOWN);
-        Pair left = new Pair(MOVE.LEFT);
-
-        for (int i = 1; i < trainingSet.length; i++) {
-            if (trainingSet[i].DirectionChosen == MOVE.NEUTRAL) {
-                neutral.numberOfTimes++;
-            } else if (trainingSet[i].DirectionChosen == MOVE.UP) {
-                up.numberOfTimes++;
-            } else if (trainingSet[i].DirectionChosen == MOVE.RIGHT) {
-                right.numberOfTimes++;
-            } else if (trainingSet[i].DirectionChosen == MOVE.DOWN) {
-                down.numberOfTimes++;
-            } else if (trainingSet[i].DirectionChosen == MOVE.LEFT) {
-                left.numberOfTimes++;
+        MOVE majorityLabel = null;
+        long majorityValue = 0;
+        for (int i = 0; i < 5; i++) {
+            int finalI = i;
+            long nbrOfThisDirection = Arrays.stream(trainingSet).filter(a -> a.DirectionChosen.ordinal() == finalI).count();
+            if (nbrOfThisDirection > majorityValue) {
+                if (i == 0) {
+                    majorityLabel = MOVE.UP;
+                } else if (i == 1) {
+                    majorityLabel = MOVE.RIGHT;
+                } else if (i == 2) {
+                    majorityLabel = MOVE.DOWN;
+                } else if (i == 3) {
+                    majorityLabel = MOVE.LEFT;
+                } else if (i == 4) {
+                    majorityLabel = MOVE.NEUTRAL;
+                }
+                majorityValue = nbrOfThisDirection;
             }
         }
-
-        List<Pair> data = new ArrayList<>();
-        data.add(neutral);
-        data.add(up);
-        data.add(right);
-        data.add(down);
-        data.add(left);
-        Collections.sort(data);
-        return data.get(0).move; //TODO Test so this sorts right!
+        return majorityLabel; //TODO NEEDS TESTING!!!
     }
 
     private Node computeAttributeNode(DataTuple[] trainingSet, ArrayList<Attribute> attributes) {
@@ -143,6 +121,7 @@ public class TreeBuilder {
         //    a) Separate all tuples in D so that attribute A takes the value aj , creating the subset Dj:
         int numberOfSubSets = getNumberOfSubsets(attribute);
         List<List<DataTuple>> subSetsOfAttributesValue = new ArrayList<>(numberOfSubSets);
+
         for (DataTuple tuple : trainingSet) {
             int tupleAttributeValue = getAttributeValue(tuple, attribute);
             subSetsOfAttributesValue.get(tupleAttributeValue).add(tuple);
@@ -160,44 +139,6 @@ public class TreeBuilder {
         //4. Return N:
         return node;
     }
-
-    /*
-        public MOVE DirectionChosen;
-
-        // General game state this - not normalized!
-        public int mazeIndex;
-        public int currentLevel;
-        public int pacmanPosition;
-        public int pacmanLivesLeft;
-        public int currentScore;
-        public int totalGameTime;
-        public int currentLevelTime;
-        public int numOfPillsLeft;
-        public int numOfPowerPillsLeft;
-
-        // Ghost this, dir, dist, edible - BLINKY, INKY, PINKY, SUE
-        public boolean isBlinkyEdible = false;
-        public boolean isInkyEdible = false;
-        public boolean isPinkyEdible = false;
-        public boolean isSueEdible = false;
-
-        public int blinkyDist = -1;
-        public int inkyDist = -1;
-        public int pinkyDist = -1;
-        public int sueDist = -1;
-
-        public MOVE blinkyDir;
-        public MOVE inkyDir;
-        public MOVE pinkyDir;
-        public MOVE sueDir;
-
-        // Util data - useful for normalization
-        public int numberOfNodesInLevel;
-        public int numberOfTotalPillsInLevel;
-        public int numberOfTotalPowerPillsInLevel;
-        private int maximumDistance = 150;
-
-     */
 
     //TODO Add all the relevant Attributes.
     private int getAttributeValue(DataTuple tuple, Attribute attribute) {
@@ -271,31 +212,29 @@ public class TreeBuilder {
      * become A, the optimal attribut.
      */
     private Attribute attributeSelection(DataTuple[] trainingSet, List<Attribute> attributes) {
-
-        class Pair implements Comparable<Pair> {
-            final Attribute attribute;
-            final double informationGain;
-
-            Pair(Attribute attribute, double informationGain) {
-                this.attribute = attribute;
-                this.informationGain = informationGain;
-            }
-
-            @Override
-            public int compareTo(Pair o) {
-                return Double.compare(o.informationGain, informationGain);
-            }
-        }
-
         double averageInformationGain = calculateAverageInformationGain(trainingSet, attributes);
-        List<Pair> attributesInformationGain = new ArrayList<>(attributes.size());
+
+        List<Pair<Attribute, Double>> attributesInformationGain = new ArrayList<>(attributes.size());
+
         for (Attribute attribute : attributes) {
             double attributeInformationGain = averageInformationGain - calculateAttributeGain(trainingSet, attribute);
             attributesInformationGain.add(new Pair(attribute, attributeInformationGain));
         }
-        Collections.sort(attributesInformationGain);
-        return attributesInformationGain.get(0).attribute;
 
+        Pair<Attribute, Double> res = Collections.max(attributesInformationGain, Comparator.comparingDouble(p -> (double) p.second));
+        return res.first;
+
+    }
+
+    //Generic pair/wrapper class that contains two values.
+    private class Pair<T, U> {
+        public final T first;
+        public final U second;
+
+        private Pair(T first, U second) {
+            this.first = first;
+            this.second = second;
+        }
     }
 
     private double calculateAttributeGain(DataTuple[] trainingSet, Attribute attribute) {

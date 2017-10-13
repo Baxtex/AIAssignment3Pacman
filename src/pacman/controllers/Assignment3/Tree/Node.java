@@ -20,11 +20,13 @@ public class Node {
         this.move = move;
     }
 
-
     public Node(Attribute label) {
         this.label = label;
     }
 
+    public Attribute getLabel(){
+        return label;
+    }
     public void addChild(Node child) {
         this.children.add(child);
     }
