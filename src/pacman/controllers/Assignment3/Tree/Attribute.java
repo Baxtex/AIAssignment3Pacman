@@ -13,7 +13,7 @@ public enum Attribute {
     numOfPillsLeft,
     numPowerPillsLeft,
     isBlinkyEdible,
-    isInkyEdidble,
+    isInkyEdible,
     isPinkyEdible,
     isSueEdible,
     blinkyDist,

@@ -25,6 +25,7 @@ public class DataTuple {
 		}
 	}
 
+
 	public MOVE DirectionChosen;
 
 	// General game state this - not normalized!
@@ -203,11 +204,11 @@ public class DataTuple {
 		return DiscreteTag.DiscretizeDouble(aux);
 	}
 
-	public double normalizeBoolean(boolean bool) {
+	public int normalizeBoolean(boolean bool) {
 		if (bool) {
-			return 1.0;
+			return 1;
 		} else {
-			return 0.0;
+			return 0;
 		}
 	}
 
