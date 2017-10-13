@@ -16,6 +16,7 @@ public class TreeBuilder {
 
     public DecisionTree buildDecisionTree() {
         DataTuple[] dataSet = DataSaverLoader.LoadPacManData();
+        //TODO Discretisize the tuples
         DataTuple[] trainingSet = getTrainingSet(dataSet);
         DataTuple[] testSet = getTestSet(dataSet, trainingSet.length);
         ArrayList<Attribute> attributes = initializeAttributesList();
@@ -29,7 +30,7 @@ public class TreeBuilder {
         int sixtyPercent = (int) (dataSet.length * 0.6);
         DataTuple[] trainingSet = new DataTuple[sixtyPercent];
         for (int i = 0; i < sixtyPercent; i++) {
-            trainingSet[i] = dataSet[i];
+            trainingSet[i] = normalizeTuple(dataSet[i]);
         }
         return trainingSet;
     }
@@ -38,10 +39,53 @@ public class TreeBuilder {
         int fortyPercent = (int) (dataSet.length - startIndex);
         DataTuple[] testSet = new DataTuple[fortyPercent];
         for (int i = 0; startIndex < dataSet.length; i++) {
-            testSet[i] = dataSet[startIndex];
+            testSet[i] = normalizeTuple(dataSet[startIndex]);
             startIndex++;
         }
         return testSet;
+    }
+
+    /*
+     	public MOVE DirectionChosen;
+
+	// General game state this - not normalized!
+	public int mazeIndex;
+	public int currentLevel;
+	public int pacmanPosition;
+	public int pacmanLivesLeft;
+	public int currentScore;
+	public int totalGameTime;
+	public int currentLevelTime;
+	public int numOfPillsLeft;
+	public int numOfPowerPillsLeft;
+
+	// Ghost this, dir, dist, edible - BLINKY, INKY, PINKY, SUE
+	public boolean isBlinkyEdible = false;
+	public boolean isInkyEdible = false;
+	public boolean isPinkyEdible = false;
+	public boolean isSueEdible = false;
+
+	public int blinkyDist = -1;
+	public int inkyDist = -1;
+	public int pinkyDist = -1;
+	public int sueDist = -1;
+
+	public MOVE blinkyDir;
+	public MOVE inkyDir;
+	public MOVE pinkyDir;
+	public MOVE sueDir;
+
+	// Util data - useful for normalization
+	public int numberOfNodesInLevel;
+	public int numberOfTotalPillsInLevel;
+	public int numberOfTotalPowerPillsInLevel;
+	private int maximumDistance = 150;
+     */
+    //Normalizes/discretisizes values in the given tuple.
+    private DataTuple normalizeTuple(DataTuple dataTuple) {
+
+
+        return dataTuple;
     }
 
     //Intialize the attribute list with all the attributes.
