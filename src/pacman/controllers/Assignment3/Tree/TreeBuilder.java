@@ -2,6 +2,8 @@ package pacman.controllers.Assignment3.Tree;
 
 import dataRecording.DataSaverLoader;
 import dataRecording.DataTuple;
+import pacman.game.Constants;
+import pacman.game.Game;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,18 +21,9 @@ public class TreeBuilder {
 
         Node tree = generateTree(trainingSet, attributes, -1);
         tree.print(1);
+        testAccuracy(tree, testSet);
         return null;
     }
-
-
-    private void printTree(Node tree) {
-        System.out.println(tree.toString());
-        for (Node n : tree.getChildren()) {
-            System.out.println(n.toString());
-            printTree(n);
-        }
-    }
-
 
     //TODO Fix, tree is built the wrong way...
     private Node generateTree(DataTuple[] trainingSet, ArrayList<Attribute> attributes, int attributeValue) {
@@ -54,9 +47,6 @@ public class TreeBuilder {
             node = new Node(attribute, attributeValue);
 
             for (int i = 0; i < getNumberOfSubsets(attribute); i++) {
-                if (trainingSet.length > 2030) {
-                    //System.out.println("f"); //Debug
-                }
 
                 int finalI = i;
 
@@ -89,6 +79,17 @@ public class TreeBuilder {
             startIndex++;
         }
         return testSet;
+    }
+
+    //Test the classifier with the testset to calculate the accuracy level of it.
+    private void testAccuracy(Node tree, DataTuple[] testSet) {
+
+    }
+
+    //Traverses decisiontree to find the direction to make a move to.
+    private Constants.MOVE traverseTree(Game gameState) {
+
+        return null;
     }
 
     //TODO Just some random attributes for now, maybe select other attributes.
