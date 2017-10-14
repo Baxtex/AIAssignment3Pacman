@@ -18,9 +18,19 @@ public class TreeBuilder {
         ArrayList<Attribute> attributes = initializeAttributesList();
 
         Node tree = generateTree(trainingSet, attributes, -1);
-
+        tree.print(1);
         return null;
     }
+
+
+    private void printTree(Node tree) {
+        System.out.println(tree.toString());
+        for (Node n : tree.getChildren()) {
+            System.out.println(n.toString());
+            printTree(n);
+        }
+    }
+
 
     //TODO Fix, tree is built the wrong way...
     private Node generateTree(DataTuple[] trainingSet, ArrayList<Attribute> attributes, int attributeValue) {
@@ -45,7 +55,7 @@ public class TreeBuilder {
 
             for (int i = 0; i < getNumberOfSubsets(attribute); i++) {
                 if (trainingSet.length > 2030) {
-                    System.out.println("f");
+                    //System.out.println("f"); //Debug
                 }
 
                 int finalI = i;
@@ -85,15 +95,15 @@ public class TreeBuilder {
     private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
         attributes.add(Attribute.isBlinkyEdible);
-        //attributes.add(Attribute.isInkyEdible);
-        //attributes.add(Attribute.isPinkyEdible);
+        attributes.add(Attribute.isInkyEdible);
+        attributes.add(Attribute.isPinkyEdible);
         attributes.add(Attribute.isSueEdible);
-        attributes.add(Attribute.blinkyDir);
+        //attributes.add(Attribute.blinkyDir);
         //attributes.add(Attribute.inkyDir);
         //attributes.add(Attribute.pinkyDir);
         //attributes.add(Attribute.sueDir);
         //attributes.add(Attribute.numOfPillsLeft);
-        attributes.add(Attribute.numPowerPillsLeft);
+        // attributes.add(Attribute.numPowerPillsLeft);
 
         return attributes;
     }
