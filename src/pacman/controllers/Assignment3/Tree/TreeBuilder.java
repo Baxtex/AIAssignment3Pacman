@@ -3,6 +3,7 @@ package pacman.controllers.Assignment3.Tree;
 import dataRecording.DataSaverLoader;
 import dataRecording.DataTuple;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,8 +22,13 @@ public class TreeBuilder {
         ArrayList<Attribute> attributes = initializeAttributesList();
 
         Node tree = generateTree(trainingSet, attributes);
+        double accuracyRate = findAccuracy(tree, testSet);
 
         return null;
+    }
+
+    private double findAccuracy(Node tree, DataTuple[] testSet) {
+        return 0.0;
     }
 
     private DataTuple[] getTrainingSet(DataTuple[] dataSet) {
@@ -122,9 +128,11 @@ public class TreeBuilder {
         int numberOfSubSets = getNumberOfSubsets(attribute);
         List<List<DataTuple>> subSetsOfAttributesValue = new ArrayList<>(numberOfSubSets);
 
-        for (DataTuple tuple : trainingSet) {
-            int tupleAttributeValue = getAttributeValue(tuple, attribute);
-            subSetsOfAttributesValue.get(tupleAttributeValue).add(tuple);
+        for (int i = 0; i < numberOfSubSets; i++) {
+            //use java stream to select all rows where attribute eqauls i .
+            int finalI = i;
+            List<DataTuple> subSet = Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
+            subSetsOfAttributesValue.add(subSet);
         }
 
         for (List<DataTuple> subSet : subSetsOfAttributesValue) {
@@ -222,7 +230,9 @@ public class TreeBuilder {
         }
 
         Pair<Attribute, Double> res = Collections.max(attributesInformationGain, Comparator.comparingDouble(p -> (double) p.second));
-        return res.first;
+        Attribute choosenAttribute = res.first;
+        attributes.remove(choosenAttribute);
+        return choosenAttribute;
 
     }
 
@@ -277,7 +287,8 @@ public class TreeBuilder {
         return informationGain;
     }
 
-    private double log2(double n) { //Fix: n is always 0
+    //Returns the log2 of a double.
+    private double log2(double n) {
         double d = (Math.log(n) / Math.log(2));
         return d;
     }
