@@ -44,13 +44,16 @@ public class TreeBuilder {
             node = new Node(attribute, attributeValue);
 
             for (int i = 0; i < getNumberOfSubsets(attribute); i++) {
+                if (trainingSet.length > 2030) {
+                    System.out.println("f");
+                }
 
                 int finalI = i;
 
                 List<DataTuple> subSet = Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
 
                 if (subSet.isEmpty()) {
-                    node.addChild(new Node(attribute, getMajorityClass(trainingSet)));
+                    node.addChild(new Node(null, getMajorityClass(trainingSet)));
                 } else {
                     node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes, i)); //Recursive call!
                 }
@@ -82,14 +85,14 @@ public class TreeBuilder {
     private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
         attributes.add(Attribute.isBlinkyEdible);
-        attributes.add(Attribute.isInkyEdible);
-        attributes.add(Attribute.isPinkyEdible);
+        //attributes.add(Attribute.isInkyEdible);
+        //attributes.add(Attribute.isPinkyEdible);
         attributes.add(Attribute.isSueEdible);
         attributes.add(Attribute.blinkyDir);
-        attributes.add(Attribute.inkyDir);
-        attributes.add(Attribute.pinkyDir);
-        attributes.add(Attribute.sueDir);
-        attributes.add(Attribute.numOfPillsLeft);
+        //attributes.add(Attribute.inkyDir);
+        //attributes.add(Attribute.pinkyDir);
+        //attributes.add(Attribute.sueDir);
+        //attributes.add(Attribute.numOfPillsLeft);
         attributes.add(Attribute.numPowerPillsLeft);
 
         return attributes;
@@ -97,7 +100,8 @@ public class TreeBuilder {
 
     //Returns true if the direction choosen class is the same value for all tuples.
     private boolean allTuplesSameClass(DataTuple[] trainingSet) {
-        return Arrays.stream(trainingSet).allMatch(a -> a.DirectionChosen == trainingSet[0].DirectionChosen);
+        boolean res = Arrays.stream(trainingSet).allMatch(a -> a.DirectionChosen == trainingSet[0].DirectionChosen);
+        return res;
     }
 
     private int getMajorityClass(DataTuple[] trainingSet) {

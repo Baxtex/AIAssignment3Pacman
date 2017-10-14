@@ -11,19 +11,16 @@ public class Node {
 
     private final List<Node> children = new ArrayList<>();
 
-    private final Attribute label;
-    private final int edgeLabel ;
+    private final Attribute attribute;
+    private final int edgeLabel;
 
-    public Node(Attribute label, int edgeLabel) {
-        this.label = label;
+    public Node(Attribute attribute, int edgeLabel) {
+        this.attribute = attribute;
         this.edgeLabel = edgeLabel;
     }
 
-    public Attribute getLabel() {
-        return label;
-    }
-
     public void addChild(Node child) {
+        children.add(child);
     }
 
     public List<Node> getChildren() {
