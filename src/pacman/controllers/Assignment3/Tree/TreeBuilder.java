@@ -7,11 +7,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Should build a decision tree by using the ID3 approach.
+ * Builds a decision tree by using the ID3 approach.
  */
 public class TreeBuilder {
 
-    //TODO Maybe save discrete values directly in the tuple, would  probably make some statements more clean.
     public DecisionTree buildDecisionTree() {
         DataTuple[] dataSet = DataSaverLoader.LoadPacManData();
         DataTuple[] trainingSet = getTrainingSet(dataSet);
@@ -23,24 +22,26 @@ public class TreeBuilder {
         return null;
     }
 
-    //TODO Fix, tree is built the wrong way..
+    //TODO Fix, tree is built the wrong way...
     private Node generateTree(DataTuple[] trainingSet, ArrayList<Attribute> attributes, int attributeValue) {
 
         Node node;
 
         if (allTuplesSameClass(trainingSet)) {
 
-            node = new Node(null, trainingSet[0].DirectionChosen.ordinal(), true);
+            node = new Node(null, trainingSet[0].DirectionChosen.ordinal());
 
         } else if (attributes.isEmpty()) {
 
-            node = new Node(null, getMajorityClass(trainingSet), true);
+            node = new Node(null, getMajorityClass(trainingSet));
 
         } else {
 
             Attribute attribute = attributeSelection(trainingSet, attributes);
 
-            node = new Node(attribute, attributeValue, false);
+            attributes.remove(attribute);
+
+            node = new Node(attribute, attributeValue);
 
             for (int i = 0; i < getNumberOfSubsets(attribute); i++) {
 
@@ -49,17 +50,13 @@ public class TreeBuilder {
                 List<DataTuple> subSet = Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
 
                 if (subSet.isEmpty()) {
-                    node.addChild(new Node(attribute, getMajorityClass(trainingSet), false));
+                    node.addChild(new Node(attribute, getMajorityClass(trainingSet)));
                 } else {
-                    node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes, i));
+                    node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes, i)); //Recursive call!
                 }
             }
         }
         return node;
-    }
-
-    private double findAccuracy(Node tree, DataTuple[] testSet) {
-        return 0.0;
     }
 
     private DataTuple[] getTrainingSet(DataTuple[] dataSet) {
@@ -72,7 +69,7 @@ public class TreeBuilder {
     }
 
     private DataTuple[] getTestSet(DataTuple[] dataSet, int startIndex) {
-        int fortyPercent = (int) (dataSet.length - startIndex);
+        int fortyPercent = (dataSet.length - startIndex);
         DataTuple[] testSet = new DataTuple[fortyPercent];
         for (int i = 0; startIndex < dataSet.length; i++) {
             testSet[i] = dataSet[startIndex];
@@ -92,15 +89,13 @@ public class TreeBuilder {
         attributes.add(Attribute.inkyDir);
         attributes.add(Attribute.pinkyDir);
         attributes.add(Attribute.sueDir);
-        //   attributes.add(Attribute.numberOfTotalPillsInLevel);
         attributes.add(Attribute.numOfPillsLeft);
-        //  attributes.add(Attribute.numberOfTotalPowerPillsInLevel);
         attributes.add(Attribute.numPowerPillsLeft);
 
         return attributes;
     }
 
-    //Returns true if the direction choosen column is the same for all tuples.
+    //Returns true if the direction choosen class is the same value for all tuples.
     private boolean allTuplesSameClass(DataTuple[] trainingSet) {
         return Arrays.stream(trainingSet).allMatch(a -> a.DirectionChosen == trainingSet[0].DirectionChosen);
     }
@@ -112,7 +107,7 @@ public class TreeBuilder {
             int finalI = i;
             long nbrOfThisDirection = Arrays.stream(trainingSet).filter(a -> a.DirectionChosen.ordinal() == finalI).count();
             if (nbrOfThisDirection > majorityValue) {
-                i = majorityLabel;
+                majorityLabel = i;
                 majorityValue = nbrOfThisDirection;
             }
         }
@@ -190,7 +185,7 @@ public class TreeBuilder {
      * become A, the optimal attribut.
      */
     private Attribute attributeSelection(DataTuple[] trainingSet, List<Attribute> attributes) {
-        double averageInformationGain = calculateAverageInformationGain(trainingSet, attributes);
+        double averageInformationGain = calculateAverageInformationGain(trainingSet);
 
         List<Pair<Attribute, Double>> attributesInformationGain = new ArrayList<>(attributes.size());
 
@@ -201,7 +196,6 @@ public class TreeBuilder {
 
         Pair<Attribute, Double> res = Collections.max(attributesInformationGain, Comparator.comparingDouble(p -> (double) p.second));
         Attribute choosenAttribute = res.first;
-        attributes.remove(choosenAttribute);
         return choosenAttribute;
 
     }

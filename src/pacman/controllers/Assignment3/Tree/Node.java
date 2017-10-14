@@ -11,14 +11,12 @@ public class Node {
 
     private final List<Node> children = new ArrayList<>();
 
-    private Attribute label;
-    private int edgeLabel = -1;
-    private final boolean leaf;
+    private final Attribute label;
+    private final int edgeLabel ;
 
-    public Node(Attribute label, int edgeLabel, boolean leaf) {
+    public Node(Attribute label, int edgeLabel) {
         this.label = label;
         this.edgeLabel = edgeLabel;
-        this.leaf = leaf;
     }
 
     public Attribute getLabel() {
@@ -26,16 +24,10 @@ public class Node {
     }
 
     public void addChild(Node child) {
-        if(!leaf){
-            this.children.add(child);
-        }
     }
 
     public List<Node> getChildren() {
         return this.children;
     }
 
-    public boolean isLeaf() {
-        return this.children.isEmpty();
-    }
 }
