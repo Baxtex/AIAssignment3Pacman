@@ -3,11 +3,8 @@ package pacman.controllers.Assignment3.Tree;
 import dataRecording.DataSaverLoader;
 import dataRecording.DataTuple;
 
-import javax.xml.crypto.Data;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static pacman.game.Constants.MOVE;
 
 /**
  * Should build a decision tree by using the ID3 approach.
@@ -21,10 +18,44 @@ public class TreeBuilder {
         DataTuple[] testSet = getTestSet(dataSet, trainingSet.length);
         ArrayList<Attribute> attributes = initializeAttributesList();
 
-        Node tree = generateTree(trainingSet, attributes);
-        double accuracyRate = findAccuracy(tree, testSet);
+        Node tree = generateTree(trainingSet, attributes, -1);
 
         return null;
+    }
+
+    //TODO Fix, tree is built the wrong way..
+    private Node generateTree(DataTuple[] trainingSet, ArrayList<Attribute> attributes, int attributeValue) {
+
+        Node node;
+
+        if (allTuplesSameClass(trainingSet)) {
+
+            node = new Node(null, trainingSet[0].DirectionChosen.ordinal(), true);
+
+        } else if (attributes.isEmpty()) {
+
+            node = new Node(null, getMajorityClass(trainingSet), true);
+
+        } else {
+
+            Attribute attribute = attributeSelection(trainingSet, attributes);
+
+            node = new Node(attribute, attributeValue, false);
+
+            for (int i = 0; i < getNumberOfSubsets(attribute); i++) {
+
+                int finalI = i;
+
+                List<DataTuple> subSet = Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
+
+                if (subSet.isEmpty()) {
+                    node.addChild(new Node(attribute, getMajorityClass(trainingSet), false));
+                } else {
+                    node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes, i));
+                }
+            }
+        }
+        return node;
     }
 
     private double findAccuracy(Node tree, DataTuple[] testSet) {
@@ -69,83 +100,23 @@ public class TreeBuilder {
         return attributes;
     }
 
-    private Node generateTree(DataTuple[] trainingSet, ArrayList<Attribute> attributes) {
-        Node node;
-
-        if (allTuplesSameClass(trainingSet)) {
-            node = new Node(trainingSet[0].DirectionChosen);
-        } else if (attributes.isEmpty()) {
-            node = new Node(getMajorityClass(trainingSet));
-        } else {
-            node = computeAttributeNode(trainingSet, attributes);
-        }
-        return node;
-    }
-
+    //Returns true if the direction choosen column is the same for all tuples.
     private boolean allTuplesSameClass(DataTuple[] trainingSet) {
-        MOVE move = trainingSet[0].DirectionChosen;
-        for (int i = 1; i < trainingSet.length; i++) {
-            if (trainingSet[i].DirectionChosen != move) {
-                return false;
-            }
-        }
-        return true;
+        return Arrays.stream(trainingSet).allMatch(a -> a.DirectionChosen == trainingSet[0].DirectionChosen);
     }
 
-    private MOVE getMajorityClass(DataTuple[] trainingSet) {
-        MOVE majorityLabel = null;
+    private int getMajorityClass(DataTuple[] trainingSet) {
+        int majorityLabel = -1;
         long majorityValue = 0;
         for (int i = 0; i < 5; i++) {
             int finalI = i;
             long nbrOfThisDirection = Arrays.stream(trainingSet).filter(a -> a.DirectionChosen.ordinal() == finalI).count();
             if (nbrOfThisDirection > majorityValue) {
-                if (i == 0) {
-                    majorityLabel = MOVE.UP;
-                } else if (i == 1) {
-                    majorityLabel = MOVE.RIGHT;
-                } else if (i == 2) {
-                    majorityLabel = MOVE.DOWN;
-                } else if (i == 3) {
-                    majorityLabel = MOVE.LEFT;
-                } else if (i == 4) {
-                    majorityLabel = MOVE.NEUTRAL;
-                }
+                i = majorityLabel;
                 majorityValue = nbrOfThisDirection;
             }
         }
         return majorityLabel; //TODO NEEDS TESTING!!!
-    }
-
-    private Node computeAttributeNode(DataTuple[] trainingSet, ArrayList<Attribute> attributes) {
-        Node node;
-        //1. Call the attribute selection method on D and the attribute list, in order to choose the current attribute A: S(D, attribute list) -> A:
-        Attribute attribute = attributeSelection(trainingSet, attributes);
-        // 2. Label N as A and remove A from the attribute list:
-        node = new Node(attribute);
-
-        // 3. For each value aj in attribute A:
-        //    a) Separate all tuples in D so that attribute A takes the value aj , creating the subset Dj:
-        int numberOfSubSets = getNumberOfSubsets(attribute);
-        List<List<DataTuple>> subSetsOfAttributesValue = new ArrayList<>(numberOfSubSets);
-
-        for (int i = 0; i < numberOfSubSets; i++) {
-            //use java stream to select all rows where attribute eqauls i .
-            int finalI = i;
-            List<DataTuple> subSet = Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
-            subSetsOfAttributesValue.add(subSet);
-        }
-
-        for (List<DataTuple> subSet : subSetsOfAttributesValue) {
-            if (subSet.isEmpty()) {
-                //    b) If Dj is empty, add a child node to N labeled with the majority class in D:
-                node.addChild(new Node(getMajorityClass(trainingSet)));
-            } else {
-                //    c) Otherwise, add the resulting node from calling Generate_Tree(Dj , attribute) as a child node to N:
-                node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes));
-            }
-        }
-        //4. Return N:
-        return node;
     }
 
     //TODO Add all the relevant Attributes.
@@ -180,7 +151,6 @@ public class TreeBuilder {
         return -100000; //Attribute not found
     }
 
-    //Should have the same kind of switch as in getAttributeValue.
     //TODO All all relevant attributes and a switch statement.
     private int getNumberOfSubsets(Attribute attribute) {
         switch (attribute) {
@@ -236,17 +206,7 @@ public class TreeBuilder {
 
     }
 
-    //Generic pair/wrapper class that contains two values.
-    private class Pair<T, U> {
-        public final T first;
-        public final U second;
-
-        private Pair(T first, U second) {
-            this.first = first;
-            this.second = second;
-        }
-    }
-
+    //Calculates the attribute gain for a single attribute.
     private double calculateAttributeGain(DataTuple[] trainingSet, Attribute attribute) {
         int totalNumberOfTuples = trainingSet.length;
         double informationGain = 0.0;
@@ -272,8 +232,8 @@ public class TreeBuilder {
         return informationGain;
     }
 
-    //Should probably only be needed to be called once to be more effective
-    private double calculateAverageInformationGain(DataTuple[] trainingSet, List<Attribute> attributes) {
+    //Calculates the average information gain on all the tuples in the data set.
+    private double calculateAverageInformationGain(DataTuple[] trainingSet) {
         int totalNumberOfTuples = trainingSet.length;
         double informationGain = 0.0;
         for (int i = 0; i < 5; i++) {
@@ -291,5 +251,16 @@ public class TreeBuilder {
     private double log2(double n) {
         double d = (Math.log(n) / Math.log(2));
         return d;
+    }
+
+    //Generic pair/wrapper class that contains two values.
+    private class Pair<T, U> {
+        public final T first;
+        public final U second;
+
+        private Pair(T first, U second) {
+            this.first = first;
+            this.second = second;
+        }
     }
 }
