@@ -139,7 +139,32 @@ public class TreeBuilder {
             }
             System.out.println();
         }
+
+
+        //Find the accuracy
+        int accuracySum = 0;
+        int errorSum = 0;
+        for (int i = 0; i < confusionMatrix.length - 1; i++) {
+
+            accuracySum += confusionMatrix[i][i];
+            errorSum += confusionMatrix[i][5 - i];
+        }
+        double accuracyRes = (double) accuracySum / (double) confusionMatrix[5][5];
+
+        //Find the Error rate
+
+        for (int i = 0; i < confusionMatrix.length - 1; i++) {
+
+
+        }
+        double errorRes = (double) errorSum / (double) confusionMatrix[5][5];
+
+
+        System.out.println("Accuracy Rate: " + accuracyRes);
+        System.out.println("Error Rate: " + errorRes);
+
     }
+
 
     int classifierClassValue = 0;
 
