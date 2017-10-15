@@ -19,8 +19,8 @@ public class TreeBuilder {
         DataTuple[] testSet = getTestSet(dataSet, trainingSet.length);
         ArrayList<Attribute> attributes = initializeAttributesList();
 
-        Node tree = generateTree(trainingSet, attributes, -1);
-        tree.print(1);
+        DecisionTree tree = new DecisionTree(generateTree(trainingSet, attributes, -1));
+        tree.printTree();
         testAccuracy(tree, testSet);
         return null;
     }
@@ -63,9 +63,9 @@ public class TreeBuilder {
     }
 
     private DataTuple[] getTrainingSet(DataTuple[] dataSet) {
-        int sixtyPercent = (int) (dataSet.length * 0.6);
-        DataTuple[] trainingSet = new DataTuple[sixtyPercent];
-        for (int i = 0; i < sixtyPercent; i++) {
+        int seventyPercent = (int) (dataSet.length * 0.7);
+        DataTuple[] trainingSet = new DataTuple[seventyPercent];
+        for (int i = 0; i < seventyPercent; i++) {
             trainingSet[i] = dataSet[i];
         }
         return trainingSet;
@@ -82,28 +82,56 @@ public class TreeBuilder {
     }
 
     //Test the classifier with the testset to calculate the accuracy level of it.
-    private void testAccuracy(Node tree, DataTuple[] testSet) {
+    //alculates and prints a confusion matrix.
+    private void testAccuracy(DecisionTree tree, DataTuple[] testSet) {
 
-    }
+        //Confusion matrix:
+        int[][] confusionMatrix = new int[6][6];
+        for (int i = 0; i < testSet.length; i++) {
+            int testTupleClassValue = testSet[i].DirectionChosen.ordinal();
+            int classifierClassValue = tree.findMove(testSet[i]);
+            if (testTupleClassValue == classifierClassValue) {
+                confusionMatrix[testTupleClassValue][testTupleClassValue] += 1;
+            } else if (testTupleClassValue != classifierClassValue) {
+                confusionMatrix[testTupleClassValue][classifierClassValue] += 1;
+            }
+        }
 
-    //Traverses decisiontree to find the direction to make a move to.
-    private Constants.MOVE traverseTree(Game gameState) {
+        //Compute the totals:
+        int totalValue = 0;
+        for (int i = 0; i < confusionMatrix.length; i++) {
+            int totalRowValue = 0;
+            for (int j = 0; j < confusionMatrix[i].length; j++) {
+                totalRowValue += confusionMatrix[i][j];
+            }
+            totalValue += totalRowValue;
+            confusionMatrix[i][confusionMatrix[i].length] = totalRowValue;
+        }
 
-        return null;
+        confusionMatrix[confusionMatrix.length][confusionMatrix[confusionMatrix.length].length] = totalValue;
+
+        //print the matrix:
+        for (int[] value : confusionMatrix) {
+            for (int y : value) {
+                System.out.print(y + " ");
+            }
+            System.out.println();
+        }
+
     }
 
     //TODO Just some random attributes for now, maybe select other attributes.
     private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
         attributes.add(Attribute.isBlinkyEdible);
-        attributes.add(Attribute.isInkyEdible);
+        //attributes.add(Attribute.isInkyEdible);..
         attributes.add(Attribute.isPinkyEdible);
-        attributes.add(Attribute.isSueEdible);
+        //attributes.add(Attribute.isSueEdible);
         //attributes.add(Attribute.blinkyDir);
         //attributes.add(Attribute.inkyDir);
-        //attributes.add(Attribute.pinkyDir);
+        attributes.add(Attribute.pinkyDir);
         //attributes.add(Attribute.sueDir);
-        //attributes.add(Attribute.numOfPillsLeft);
+        attributes.add(Attribute.numOfPillsLeft);
         // attributes.add(Attribute.numPowerPillsLeft);
 
         return attributes;
