@@ -13,7 +13,6 @@ public class DecisionTree {
         this.root = root;
     }
 
-
     public Constants.MOVE findMove(Game game) {
         return null;
     }
@@ -21,6 +20,10 @@ public class DecisionTree {
     public int findMove(DataTuple dataTuple) {
 
         return 0;
+    }
+
+    public Node getRoot(){
+        return root;
     }
 
     public void printTree() {

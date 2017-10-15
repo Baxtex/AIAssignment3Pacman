@@ -3,7 +3,6 @@ package pacman.controllers.Assignment3.Tree;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Node in decision tree.
  */
@@ -32,9 +31,7 @@ public class Node {
             return attribute.name();
         } else if (attribute != null) {
             return attribute.name() + ":" + String.valueOf(edgeLabel);
-
         } else {
-
             if (edgeLabel == 0) {
                 return "UP";
             } else if (edgeLabel == 1) {

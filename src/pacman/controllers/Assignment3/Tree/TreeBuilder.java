@@ -89,7 +89,8 @@ public class TreeBuilder {
         int[][] confusionMatrix = new int[6][6];
         for (int i = 0; i < testSet.length; i++) {
             int testTupleClassValue = testSet[i].DirectionChosen.ordinal();
-            int classifierClassValue = tree.findMove(testSet[i]);
+            //int classifierClassValue = tree.findMove(testSet[i]);
+            int classifierClassValue = findMove(testSet[i], tree.getRoot());
             if (testTupleClassValue == classifierClassValue) {
                 confusionMatrix[testTupleClassValue][testTupleClassValue] += 1;
             } else if (testTupleClassValue != classifierClassValue) {
@@ -118,6 +119,11 @@ public class TreeBuilder {
             System.out.println();
         }
 
+    }
+
+    //To be removed later, just used for testing for now.
+    private int findMove(DataTuple dataTuple, Node root) {
+        return 0;
     }
 
     //TODO Just some random attributes for now, maybe select other attributes.
