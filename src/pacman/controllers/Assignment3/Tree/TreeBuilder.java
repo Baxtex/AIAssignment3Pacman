@@ -90,7 +90,8 @@ public class TreeBuilder {
         for (int i = 0; i < testSet.length; i++) {
             int testTupleClassValue = testSet[i].DirectionChosen.ordinal();
             //int classifierClassValue = tree.findMove(testSet[i]);
-            int classifierClassValue = findMove(testSet[i], tree.getRoot());
+
+            findMove(testSet[i], tree.getRoot());
             if (testTupleClassValue == classifierClassValue) {
                 confusionMatrix[testTupleClassValue][testTupleClassValue] += 1;
             } else if (testTupleClassValue != classifierClassValue) {
@@ -99,31 +100,59 @@ public class TreeBuilder {
         }
 
         //Compute the totals:
+        int lastColValue = 0;
         int totalValue = 0;
         for (int i = 0; i < confusionMatrix.length; i++) {
             int totalRowValue = 0;
             for (int j = 0; j < confusionMatrix[i].length; j++) {
                 totalRowValue += confusionMatrix[i][j];
+                lastColValue += confusionMatrix[j][i];
             }
             totalValue += totalRowValue;
-            confusionMatrix[i][confusionMatrix[i].length] = totalRowValue;
+            confusionMatrix[i][5] = totalRowValue;
+            confusionMatrix[5][i] = lastColValue;
+            lastColValue = 0;
         }
-
-        confusionMatrix[confusionMatrix.length][confusionMatrix[confusionMatrix.length].length] = totalValue;
+        confusionMatrix[5][5] = totalValue;
 
         //print the matrix:
-        for (int[] value : confusionMatrix) {
-            for (int y : value) {
-                System.out.print(y + " ");
+        System.out.println("");
+        System.out.println(" Up  Right Down Left Neu  | Total");
+        System.out.println("__________________________|__________");
+
+        for (int i = 0; i < confusionMatrix.length; i++) {
+            if (i == 5) {
+                System.out.println("__________________________|__________");
+            }
+
+            for (int j = 0; j < confusionMatrix[i].length; j++) {
+
+                if (j == 5) {
+                    System.out.print(" | ");
+                }
+
+                if (confusionMatrix[i][j] == 0) {
+                    System.out.print(" 000 ");
+                } else {
+                    System.out.print(" " + confusionMatrix[i][j] + " ");
+                }
             }
             System.out.println();
         }
-
     }
+
+    int classifierClassValue = 0;
 
     //To be removed later, just used for testing for now.
     private int findMove(DataTuple dataTuple, Node root) {
-        return 0;
+
+        if (!root.isLeaf()) {
+            int attributeValue = getAttributeValue(dataTuple, root.getAttribute());
+            findMove(dataTuple, root.getChildren().get(attributeValue));
+        } else {
+            classifierClassValue = root.getEdgeLabel();
+        }
+        return classifierClassValue;
     }
 
     //TODO Just some random attributes for now, maybe select other attributes.

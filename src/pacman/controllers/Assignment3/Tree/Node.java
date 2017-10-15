@@ -26,6 +26,10 @@ public class Node {
         return this.children;
     }
 
+    public boolean isLeaf(){
+        return this.children.isEmpty();
+    }
+
     public String toString() {
         if (edgeLabel == -1) {
             return attribute.name();
@@ -54,5 +58,13 @@ public class Node {
         for (Node child : children) {
             child.print(level + 1);
         }
+    }
+
+    public Attribute getAttribute() {
+        return attribute;
+    }
+
+    public int getEdgeLabel() {
+        return edgeLabel;
     }
 }
