@@ -16,7 +16,22 @@ public class DecisionTree {
 
     //TODO implement.
     public Constants.MOVE findMove(Game game) {
-        return null;
+
+        DataTuple dataTuple = new DataTuple(game, Constants.MOVE.NEUTRAL);
+        int moveOrdinal = findMove(dataTuple);
+
+        switch (moveOrdinal) {
+            case 0:
+                return Constants.MOVE.UP;
+            case 1:
+                return Constants.MOVE.RIGHT;
+            case 2:
+                return Constants.MOVE.DOWN;
+            case 3:
+                return Constants.MOVE.LEFT;
+        }
+        assert moveOrdinal > -1 && moveOrdinal < 5;
+        return Constants.MOVE.NEUTRAL;
     }
 
     //Returns the resulting direction from putting the given tuple in the tree.

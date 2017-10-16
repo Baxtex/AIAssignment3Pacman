@@ -24,6 +24,9 @@ public class MachineLearningPacman extends Controller<MOVE> {
 
     @Override
     public MOVE getMove(Game game, long timeDue) {
-        return tree.findMove(game);
+
+        MOVE move = tree.findMove(game);
+        System.out.println("Going to " + move.name());
+        return move;
     }
 }

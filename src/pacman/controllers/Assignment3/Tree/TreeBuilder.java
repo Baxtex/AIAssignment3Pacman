@@ -163,7 +163,6 @@ public class TreeBuilder {
     //TODO Just some random attributes for now, maybe select other attributes.
     private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
-        attributes.add(Attribute.isBlinkyEdible);
         //attributes.add(Attribute.isInkyEdible);
         //attributes.add(Attribute.isPinkyEdible);
         attributes.add(Attribute.isSueEdible);
