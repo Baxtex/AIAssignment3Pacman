@@ -1,6 +1,5 @@
 package pacman.controllers.Assignment3.Tree;
 
-//TODO Might remove, will keep for now.
 public enum Attribute {
     DirectionChosen,
     mazeIndex,

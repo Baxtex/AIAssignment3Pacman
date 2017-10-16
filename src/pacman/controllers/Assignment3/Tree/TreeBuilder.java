@@ -170,17 +170,19 @@ public class TreeBuilder {
     private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
         attributes.add(Attribute.isBlinkyEdible);
-        attributes.add(Attribute.isInkyEdible);
-        attributes.add(Attribute.isPinkyEdible);
+        //attributes.add(Attribute.isInkyEdible);
+        //attributes.add(Attribute.isPinkyEdible);
         attributes.add(Attribute.isSueEdible);
-        //  attributes.add(Attribute.blinkyDir);
-        //    attributes.add(Attribute.inkyDir);
-        //      attributes.add(Attribute.pinkyDir);
+        attributes.add(Attribute.blinkyDir);
+        //attributes.add(Attribute.inkyDir);
+        //attributes.add(Attribute.pinkyDir);
         //attributes.add(Attribute.sueDir);
         attributes.add(Attribute.numOfPillsLeft);
-        attributes.add(Attribute.numPowerPillsLeft);
-
-
+        //attributes.add(Attribute.numPowerPillsLeft);
+        // attributes.add(Attribute.pacmanPosition);
+        attributes.add(Attribute.currentScore);
+        attributes.add(Attribute.currentLevelTime);
+        attributes.add(Attribute.pacmanLivesLeft);
         return attributes;
     }
 
@@ -230,6 +232,14 @@ public class TreeBuilder {
                 return tuple.discretizeNumberOfPowerPills(tuple.numberOfTotalPowerPillsInLevel).ordinal();
             case numPowerPillsLeft:
                 return tuple.discretizeNumberOfPowerPills(tuple.numOfPowerPillsLeft).ordinal();
+            case pacmanPosition:
+                return tuple.discretizePosition(tuple.pacmanPosition).ordinal();
+            case currentScore:
+                return tuple.discretizeCurrentScore(tuple.currentScore).ordinal();
+            case currentLevelTime:
+                return tuple.discretizeCurrentLevelTime(tuple.currentLevelTime).ordinal();
+            case pacmanLivesLeft:
+                return tuple.pacmanLivesLeft;
         }
 
         return -100000; //Attribute not found
@@ -262,6 +272,15 @@ public class TreeBuilder {
                 return 5;
             case numPowerPillsLeft:
                 return 5;
+            case pacmanPosition:
+                return 5;
+            case currentScore:
+                return 5;
+            case currentLevelTime:
+                return 5;
+            case pacmanLivesLeft:
+                return 4;
+
         }
         return -100000; //Attribute not found
     }
