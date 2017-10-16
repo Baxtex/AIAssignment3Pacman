@@ -37,6 +37,8 @@ public class Utility {
                 return tuple.discretizeCurrentScore(tuple.currentScore).ordinal();
             case currentLevelTime:
                 return tuple.discretizeCurrentLevelTime(tuple.currentLevelTime).ordinal();
+            case totalGameTime:
+                return tuple.discretizeTotalGameTime(tuple.totalGameTime).ordinal();
             case pacmanLivesLeft:
                 return tuple.pacmanLivesLeft;
         }
@@ -79,6 +81,8 @@ public class Utility {
                 return 5;
             case pacmanLivesLeft:
                 return 4;
+            case totalGameTime:
+                return 5;
 
         }
         return -100000; //Attribute not found

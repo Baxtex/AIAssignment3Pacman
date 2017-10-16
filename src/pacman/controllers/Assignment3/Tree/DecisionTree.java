@@ -37,11 +37,15 @@ public class DecisionTree {
 
     //Returns a ordinal of the move to make given that datatuple was sent to the tree.
     public int findMove(DataTuple dataTuple) {
+        String treeTraverser = "";
         Node node = root;
         while (!node.isLeaf()) {
-            int attributeValue = getAttributeValue(dataTuple, root.getAttribute());
+            int attributeValue = getAttributeValue(dataTuple, node.getAttribute());
+            treeTraverser += attributeValue + "-> ";
             node = node.getChildren().get(attributeValue);
         }
+        treeTraverser += ":" + node.getDirection().name();
+        System.out.println(treeTraverser);
         return node.getDirection().ordinal();
     }
 

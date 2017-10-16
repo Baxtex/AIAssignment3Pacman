@@ -161,21 +161,23 @@ public class TreeBuilder {
     //Creates and initializes a list with the attributes to include in the tree.
     private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
-        //attributes.add(Attribute.isInkyEdible);
+       // attributes.add(Attribute.isInkyEdible);
         //attributes.add(Attribute.isPinkyEdible);
-        attributes.add(Attribute.isSueEdible);
+      //  attributes.add(Attribute.isSueEdible);
         attributes.add(Attribute.blinkyDir);
-        //attributes.add(Attribute.inkyDir);
+       // attributes.add(Attribute.inkyDir);
         //attributes.add(Attribute.pinkyDir);
         //attributes.add(Attribute.sueDir);
         attributes.add(Attribute.numOfPillsLeft);
         //attributes.add(Attribute.numPowerPillsLeft);
-        // attributes.add(Attribute.pacmanPosition);
+      //  attributes.add(Attribute.pacmanPosition);
         attributes.add(Attribute.currentScore);
         attributes.add(Attribute.currentLevelTime);
         attributes.add(Attribute.pacmanLivesLeft);
+        //attributes.add(Attribute.totalGameTime);
         return attributes;
     }
+
 
     //Returns true if the direction chosen class is the same value for all tuples.
     private boolean allTuplesSameClass(DataTuple[] set) {

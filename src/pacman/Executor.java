@@ -3,6 +3,7 @@ package pacman;
 import pacman.controllers.Assignment3.Controller.MachineLearningPacman;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
+import pacman.controllers.examples.AggressiveGhosts;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.game.Game;
 import pacman.game.GameView;
@@ -35,7 +36,7 @@ public class Executor {
 
         //Switch between these:
         //exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual); //Standard game!
-        exec.runGameTimed(new MachineLearningPacman(), new StarterGhosts(), visual); //Custom pacman that is run by ML.
+        exec.runGame(new MachineLearningPacman(), new StarterGhosts(), visual, 75); //Custom pacman that is run by ML.
 
 
         //exec.runExperiment(new RandomPacMan(),new RandomGhosts(),numTrials);
