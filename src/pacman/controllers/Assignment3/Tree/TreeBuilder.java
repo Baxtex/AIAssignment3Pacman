@@ -2,8 +2,6 @@ package pacman.controllers.Assignment3.Tree;
 
 import dataRecording.DataSaverLoader;
 import dataRecording.DataTuple;
-import pacman.game.Constants;
-import pacman.game.Game;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,56 +17,59 @@ public class TreeBuilder {
         DataTuple[] testSet = getTestSet(dataSet, trainingSet.length);
         ArrayList<Attribute> attributes = initializeAttributesList();
 
-        DecisionTree tree = new DecisionTree(generateTree(trainingSet, attributes, -1));
+        DecisionTree tree = new DecisionTree(generateTree(trainingSet, attributes));
         tree.printTree();
         testAccuracy(tree, testSet);
         return null;
     }
 
     //TODO Fix, tree is built the wrong way...
-    private Node generateTree(DataTuple[] trainingSet, ArrayList<Attribute> attributes, int attributeValue) {
+    private Node generateTree(DataTuple[] set, ArrayList<Attribute> attributes) {
 
         Node node;
 
+        if (allTuplesSameClass(set)) {
 
-        if (allTuplesSameClass(trainingSet)) {
-
-            node = new Node(null, trainingSet[0].DirectionChosen.ordinal());
+            node = new Node(set[0].DirectionChosen.ordinal());
 
         } else if (attributes.isEmpty()) {
 
-            node = new Node(null, getMajorityClass(trainingSet));
+            node = new Node(getMajorityClass(set));
 
         } else {
 
-            Attribute attribute = attributeSelection(trainingSet, attributes);
+            Attribute attribute = attributeSelection(set, attributes);
 
             attributes.remove(attribute);
 
-            node = new Node(attribute, attributeValue);
+            node = new Node(attribute);
 
             for (int i = 0; i < getNumberOfSubsets(attribute); i++) {
 
-                int finalI = i;
-
-                List<DataTuple> subSet = Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
+                List<DataTuple> subSet = getSubset(set, attribute, i);
 
                 if (subSet.isEmpty()) {
-                    node.addChild(new Node(null, getMajorityClass(trainingSet)));
+
+                    node.addChild(new Node(getMajorityClass(set)));
+
                 } else {
-                    node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes, i)); //Recursive call!
+
+                    node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes)); //Recursive call!
+
                 }
             }
         }
         return node;
     }
 
+    private List<DataTuple> getSubset(DataTuple[] trainingSet, Attribute attribute, int finalI) {
+        return Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
+    }
+
     private DataTuple[] getTrainingSet(DataTuple[] dataSet) {
         int seventyPercent = (int) (dataSet.length * 0.7);
         DataTuple[] trainingSet = new DataTuple[seventyPercent];
-        for (int i = 0; i < seventyPercent; i++) {
-            trainingSet[i] = dataSet[i];
-        }
+        System.arraycopy(dataSet, 0, trainingSet, 0, seventyPercent);
         return trainingSet;
     }
 
@@ -88,9 +89,9 @@ public class TreeBuilder {
 
         //Confusion matrix:
         int[][] confusionMatrix = new int[6][6];
-        for (int i = 0; i < testSet.length; i++) {
-            int testTupleClassValue = testSet[i].DirectionChosen.ordinal();
-            int classifierClassValue = findMove(testSet[i], tree.getRoot());
+        for (DataTuple aTestSet : testSet) {
+            int testTupleClassValue = aTestSet.DirectionChosen.ordinal();
+            int classifierClassValue = findMove(aTestSet, tree.getRoot());
             if (testTupleClassValue == classifierClassValue) {
                 confusionMatrix[testTupleClassValue][testTupleClassValue] += 1;
             } else if (testTupleClassValue != classifierClassValue) {
@@ -149,15 +150,7 @@ public class TreeBuilder {
             errorSum += confusionMatrix[i][5 - i];
         }
         double accuracyRes = (double) accuracySum / (double) confusionMatrix[5][5];
-
-        //Find the Error rate
-
-        for (int i = 0; i < confusionMatrix.length - 1; i++) {
-
-
-        }
         double errorRes = (double) errorSum / (double) confusionMatrix[5][5];
-
 
         System.out.println("Accuracy Rate: " + accuracyRes);
         System.out.println("Error Rate: " + errorRes);
@@ -177,23 +170,23 @@ public class TreeBuilder {
     private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
         attributes.add(Attribute.isBlinkyEdible);
-        //attributes.add(Attribute.isInkyEdible);..
-        //attributes.add(Attribute.isPinkyEdible);
-        //attributes.add(Attribute.isSueEdible);
-        //attributes.add(Attribute.blinkyDir);
-        //attributes.add(Attribute.inkyDir);
-        attributes.add(Attribute.pinkyDir);
+        attributes.add(Attribute.isInkyEdible);
+        attributes.add(Attribute.isPinkyEdible);
+        attributes.add(Attribute.isSueEdible);
+        //  attributes.add(Attribute.blinkyDir);
+        //    attributes.add(Attribute.inkyDir);
+        //      attributes.add(Attribute.pinkyDir);
         //attributes.add(Attribute.sueDir);
-        //attributes.add(Attribute.numOfPillsLeft);
+        attributes.add(Attribute.numOfPillsLeft);
         attributes.add(Attribute.numPowerPillsLeft);
+
 
         return attributes;
     }
 
     //Returns true if the direction choosen class is the same value for all tuples.
     private boolean allTuplesSameClass(DataTuple[] trainingSet) {
-        boolean res = Arrays.stream(trainingSet).allMatch(a -> a.DirectionChosen == trainingSet[0].DirectionChosen);
-        return res;
+        return Arrays.stream(trainingSet).allMatch(a -> a.DirectionChosen == trainingSet[0].DirectionChosen);
     }
 
     private int getMajorityClass(DataTuple[] trainingSet) {
@@ -230,8 +223,7 @@ public class TreeBuilder {
             case sueDir:
                 return tuple.sueDir.ordinal();
             case numberOfTotalPillsInLevel:
-                int nbr = tuple.discretizeNumberOfPowerPills(tuple.numberOfTotalPillsInLevel).ordinal();
-                return nbr;
+                return tuple.discretizeNumberOfPowerPills(tuple.numberOfTotalPillsInLevel).ordinal();
             case numOfPillsLeft:
                 return tuple.discretizeNumberOfPowerPills(tuple.numOfPillsLeft).ordinal();
             case numberOfTotalPowerPillsInLevel:
@@ -239,6 +231,7 @@ public class TreeBuilder {
             case numPowerPillsLeft:
                 return tuple.discretizeNumberOfPowerPills(tuple.numOfPowerPillsLeft).ordinal();
         }
+
         return -100000; //Attribute not found
     }
 
@@ -291,8 +284,7 @@ public class TreeBuilder {
         }
 
         Pair<Attribute, Double> res = Collections.max(attributesInformationGain, Comparator.comparingDouble(p -> (double) p.second));
-        Attribute choosenAttribute = res.first;
-        return choosenAttribute;
+        return res.first;
 
     }
 
@@ -302,8 +294,7 @@ public class TreeBuilder {
         double informationGain = 0.0;
         int nbrOfSubsets = getNumberOfSubsets(attribute);
         for (int i = 0; i < nbrOfSubsets; i++) {
-            int finalI = i;
-            List<DataTuple> subSet = Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
+            List<DataTuple> subSet = getSubset(trainingSet, attribute, i);
             double logValue = 0.0;
             for (int j = 0; j < 5; j++) {
                 int finalJ = j;
@@ -339,14 +330,13 @@ public class TreeBuilder {
 
     //Returns the log2 of a double.
     private double log2(double n) {
-        double d = (Math.log(n) / Math.log(2));
-        return d;
+        return (Math.log(n) / Math.log(2));
     }
 
     //Generic pair/wrapper class that contains two values.
     private class Pair<T, U> {
-        public final T first;
-        public final U second;
+        final T first;
+        final U second;
 
         private Pair(T first, U second) {
             this.first = first;

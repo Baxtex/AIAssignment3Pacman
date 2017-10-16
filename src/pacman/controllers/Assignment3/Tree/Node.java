@@ -12,7 +12,7 @@ public class Node {
 
     private final List<Node> children = new ArrayList<>();
 
-    private final Attribute attribute;
+    private  Attribute attribute;
 
     private Constants.MOVE direction;
 
@@ -22,8 +22,7 @@ public class Node {
         this.attribute = attribute;
     }
 
-    public Node(Attribute attribute, int direction) {
-        this.attribute = attribute;
+    public Node(int direction) {
         if (direction == 0) {
             this.direction = Constants.MOVE.UP;
         } else if (direction == 1) {
@@ -72,8 +71,6 @@ public class Node {
                 return this.direction.name();
             }
         }
-
-
     }
 
     public void print(int level) {
