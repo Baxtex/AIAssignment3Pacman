@@ -89,9 +89,7 @@ public class TreeBuilder {
         int[][] confusionMatrix = new int[6][6];
         for (int i = 0; i < testSet.length; i++) {
             int testTupleClassValue = testSet[i].DirectionChosen.ordinal();
-            //int classifierClassValue = tree.findMove(testSet[i]);
-
-            findMove(testSet[i], tree.getRoot());
+            int classifierClassValue = findMove(testSet[i], tree.getRoot());
             if (testTupleClassValue == classifierClassValue) {
                 confusionMatrix[testTupleClassValue][testTupleClassValue] += 1;
             } else if (testTupleClassValue != classifierClassValue) {
@@ -162,22 +160,16 @@ public class TreeBuilder {
 
         System.out.println("Accuracy Rate: " + accuracyRes);
         System.out.println("Error Rate: " + errorRes);
-
     }
 
-
-    int classifierClassValue = 0;
-
-    //To be removed later, just used for testing for now.
+    //To be moved to the decisionstree class later, just used for testing for now.
     private int findMove(DataTuple dataTuple, Node root) {
 
-        if (!root.isLeaf()) {
+        while (!root.isLeaf()) {
             int attributeValue = getAttributeValue(dataTuple, root.getAttribute());
-            findMove(dataTuple, root.getChildren().get(attributeValue));
-        } else {
-            classifierClassValue = root.getEdgeLabel();
+            root = root.getChildren().get(attributeValue);
         }
-        return classifierClassValue;
+        return root.getEdgeLabel();
     }
 
     //TODO Just some random attributes for now, maybe select other attributes.
