@@ -41,7 +41,7 @@ public class DecisionTree {
         Node node = root;
         while (!node.isLeaf()) {
             int attributeValue = getAttributeValue(dataTuple, node.getAttribute());
-            treeTraverser += attributeValue + "-> ";
+            treeTraverser += node.getAttribute().name() + "->" +attributeValue + " ";
             node = node.getChildren().get(attributeValue);
         }
         treeTraverser += ":" + node.getDirection().name();

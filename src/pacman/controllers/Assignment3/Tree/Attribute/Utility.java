@@ -23,6 +23,14 @@ public class Utility {
                 return tuple.pinkyDir.ordinal();
             case sueDir:
                 return tuple.sueDir.ordinal();
+            case blinkyDist:
+                return tuple.discretizeDistance(tuple.blinkyDist).ordinal();
+            case inkyDist:
+                return tuple.discretizeDistance(tuple.inkyDist).ordinal();
+            case pinkyDist:
+                return tuple.discretizeDistance(tuple.pinkyDist).ordinal();
+            case sueDist:
+                return tuple.discretizeDistance(tuple.sueDist).ordinal();
             case numberOfTotalPillsInLevel:
                 return tuple.discretizeNumberOfPowerPills(tuple.numberOfTotalPillsInLevel).ordinal();
             case numOfPillsLeft:
@@ -65,6 +73,14 @@ public class Utility {
                 return 4;
             case sueDir:
                 return 4;
+            case blinkyDist:
+                return 6;
+            case inkyDist:
+                return 6;
+            case pinkyDist:
+                return 6;
+            case sueDist:
+                return 6;
             case numberOfTotalPillsInLevel:
                 return 5;
             case numOfPillsLeft:
