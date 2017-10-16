@@ -1,5 +1,7 @@
 package pacman.controllers.Assignment3.Tree;
 
+import pacman.game.Constants;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,14 +13,35 @@ public class Node {
     private final List<Node> children = new ArrayList<>();
 
     private final Attribute attribute;
-    private final int edgeLabel;
 
-    public Node(Attribute attribute, int edgeLabel) {
+    private Constants.MOVE direction;
+
+    int attributeValue = -1;
+
+    public Node(Attribute attribute) {
         this.attribute = attribute;
-        this.edgeLabel = edgeLabel;
+    }
+
+    public Node(Attribute attribute, int direction) {
+        this.attribute = attribute;
+        if (direction == 0) {
+            this.direction = Constants.MOVE.UP;
+        } else if (direction == 1) {
+            this.direction = Constants.MOVE.RIGHT;
+        } else if (direction == 2) {
+            this.direction = Constants.MOVE.DOWN;
+        } else if (direction == 3) {
+            this.direction = Constants.MOVE.LEFT;
+        }
+
+    }
+
+    public void setAttributeValue(int i) {
+        attributeValue = i;
     }
 
     public void addChild(Node child) {
+        child.setAttributeValue(children.size());
         children.add(child);
     }
 
@@ -26,28 +49,31 @@ public class Node {
         return this.children;
     }
 
-    public boolean isLeaf(){
+    public Constants.MOVE getDirection() {
+        return direction;
+    }
+
+    public boolean isLeaf() {
         return this.children.isEmpty();
     }
 
     public String toString() {
-        if (edgeLabel == -1) {
-            return attribute.name();
-        } else if (attribute != null) {
-            return attribute.name() + ":" + String.valueOf(edgeLabel);
-        } else {
-            if (edgeLabel == 0) {
-                return "UP";
-            } else if (edgeLabel == 1) {
-                return "RIGHT";
-            } else if (edgeLabel == 2) {
-                return "DOWN";
-            } else if (edgeLabel == 3) {
-                return "LEFT";
+
+        if (attributeValue != -1) {
+            if (attribute != null) {
+                return attributeValue + ":" + this.attribute.name();
             } else {
-                return "NEUTRAL";
+                return attributeValue + ":" + this.direction.name();
+            }
+        } else {
+            if (attribute != null) {
+                return this.attribute.name();
+            } else {
+                return this.direction.name();
             }
         }
+
+
     }
 
     public void print(int level) {
@@ -64,7 +90,4 @@ public class Node {
         return attribute;
     }
 
-    public int getEdgeLabel() {
-        return edgeLabel;
-    }
 }

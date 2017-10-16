@@ -30,6 +30,7 @@ public class TreeBuilder {
 
         Node node;
 
+
         if (allTuplesSameClass(trainingSet)) {
 
             node = new Node(null, trainingSet[0].DirectionChosen.ordinal());
@@ -169,7 +170,7 @@ public class TreeBuilder {
             int attributeValue = getAttributeValue(dataTuple, root.getAttribute());
             root = root.getChildren().get(attributeValue);
         }
-        return root.getEdgeLabel();
+        return root.getDirection().ordinal();
     }
 
     //TODO Just some random attributes for now, maybe select other attributes.
@@ -177,14 +178,14 @@ public class TreeBuilder {
         ArrayList<Attribute> attributes = new ArrayList<>();
         attributes.add(Attribute.isBlinkyEdible);
         //attributes.add(Attribute.isInkyEdible);..
-        attributes.add(Attribute.isPinkyEdible);
+        //attributes.add(Attribute.isPinkyEdible);
         //attributes.add(Attribute.isSueEdible);
         //attributes.add(Attribute.blinkyDir);
         //attributes.add(Attribute.inkyDir);
         attributes.add(Attribute.pinkyDir);
         //attributes.add(Attribute.sueDir);
-        attributes.add(Attribute.numOfPillsLeft);
-        // attributes.add(Attribute.numPowerPillsLeft);
+        //attributes.add(Attribute.numOfPillsLeft);
+        attributes.add(Attribute.numPowerPillsLeft);
 
         return attributes;
     }
