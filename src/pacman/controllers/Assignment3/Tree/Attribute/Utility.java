@@ -4,6 +4,7 @@ import dataRecording.DataTuple;
 
 public class Utility {
 
+    //Returns the discrete attribute value for a given tuple and specified attribute.
     public static int getAttributeValue(DataTuple tuple, Attribute attribute) {
         switch (attribute) {
             case isBlinkyEdible:
@@ -43,7 +44,7 @@ public class Utility {
         return -100000; //Attribute not found
     }
 
-    //TODO All all relevant attributes and a switch statement.
+    //Returns the number of values a specific attribute can have.
     public static int getNumberOfSubsets(Attribute attribute) {
         switch (attribute) {
             case isBlinkyEdible:

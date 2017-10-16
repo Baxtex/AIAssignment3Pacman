@@ -6,10 +6,12 @@ import pacman.game.Constants;
 import java.util.ArrayList;
 import java.util.List;
 
+import static pacman.game.Constants.MOVE;
+
 /**
  * Node in decision tree.
  */
-public class Node {
+class Node {
 
     private final List<Node> children = new ArrayList<>();
 
@@ -17,7 +19,7 @@ public class Node {
 
     private Constants.MOVE direction;
 
-    int attributeValue = -1;
+    private int attributeValue = -1;
 
     public Node(Attribute attribute) {
         this.attribute = attribute;
@@ -25,18 +27,17 @@ public class Node {
 
     public Node(int direction) {
         if (direction == 0) {
-            this.direction = Constants.MOVE.UP;
+            this.direction = MOVE.UP;
         } else if (direction == 1) {
-            this.direction = Constants.MOVE.RIGHT;
+            this.direction = MOVE.RIGHT;
         } else if (direction == 2) {
-            this.direction = Constants.MOVE.DOWN;
+            this.direction = MOVE.DOWN;
         } else if (direction == 3) {
-            this.direction = Constants.MOVE.LEFT;
+            this.direction = MOVE.LEFT;
         }
-
     }
 
-    public void setAttributeValue(int i) {
+    private void setAttributeValue(int i) {
         attributeValue = i;
     }
 
@@ -87,5 +88,4 @@ public class Node {
     public Attribute getAttribute() {
         return attribute;
     }
-
 }

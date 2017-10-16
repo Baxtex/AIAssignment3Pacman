@@ -5,6 +5,7 @@ import pacman.game.Constants;
 import pacman.game.Game;
 
 import static pacman.controllers.Assignment3.Tree.Attribute.Utility.getAttributeValue;
+import static pacman.game.Constants.MOVE;
 
 public class DecisionTree {
 
@@ -14,7 +15,7 @@ public class DecisionTree {
         this.root = root;
     }
 
-    //TODO implement.
+    //Finds a move given the state of the game.
     public Constants.MOVE findMove(Game game) {
 
         DataTuple dataTuple = new DataTuple(game, Constants.MOVE.NEUTRAL);
@@ -22,19 +23,19 @@ public class DecisionTree {
 
         switch (moveOrdinal) {
             case 0:
-                return Constants.MOVE.UP;
+                return MOVE.UP;
             case 1:
-                return Constants.MOVE.RIGHT;
+                return MOVE.RIGHT;
             case 2:
-                return Constants.MOVE.DOWN;
+                return MOVE.DOWN;
             case 3:
-                return Constants.MOVE.LEFT;
+                return MOVE.LEFT;
         }
         assert moveOrdinal > -1 && moveOrdinal < 5;
         return Constants.MOVE.NEUTRAL;
     }
 
-    //Returns the resulting direction from putting the given tuple in the tree.
+    //Returns a ordinal of the move to make given that datatuple was sent to the tree.
     public int findMove(DataTuple dataTuple) {
         Node node = root;
         while (!node.isLeaf()) {

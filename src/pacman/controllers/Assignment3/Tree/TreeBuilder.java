@@ -57,7 +57,7 @@ public class TreeBuilder {
 
                 } else {
 
-                    node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes)); //Recursive call!
+                    node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes));
 
                 }
             }
@@ -65,10 +65,7 @@ public class TreeBuilder {
         return node;
     }
 
-    private List<DataTuple> getSubset(DataTuple[] trainingSet, Attribute attribute, int finalI) {
-        return Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
-    }
-
+    //Takes the first 70% tuples as trainingset.
     private DataTuple[] getTrainingSet(DataTuple[] dataSet) {
         int seventyPercent = (int) (dataSet.length * 0.7);
         DataTuple[] trainingSet = new DataTuple[seventyPercent];
@@ -76,9 +73,10 @@ public class TreeBuilder {
         return trainingSet;
     }
 
+    //Takes the last 30% as testset
     private DataTuple[] getTestSet(DataTuple[] dataSet, int startIndex) {
-        int fortyPercent = (dataSet.length - startIndex);
-        DataTuple[] testSet = new DataTuple[fortyPercent];
+        int thirtyPercent = (dataSet.length - startIndex);
+        DataTuple[] testSet = new DataTuple[thirtyPercent];
         for (int i = 0; startIndex < dataSet.length; i++) {
             testSet[i] = dataSet[startIndex];
             startIndex++;
@@ -86,23 +84,29 @@ public class TreeBuilder {
         return testSet;
     }
 
-    //Test the classifier with the testset to calculate the accuracy level of it.
-    //alculates and prints a confusion matrix.
+    //Selects and returns a subset from the given set for certain attribute value.
+    private List<DataTuple> getSubset(DataTuple[] trainingSet, Attribute attribute, int finalI) {
+        return Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
+    }
+
+    //Test the classifier with the testset to calculate the accuracy level of it with a confusion matrix.
     private void testAccuracy(DecisionTree tree, DataTuple[] testSet) {
 
-        //Confusion matrix:
-        int[][] confusionMatrix = new int[6][6];
-        for (DataTuple aTestSet : testSet) {
-            int testTupleClassValue = aTestSet.DirectionChosen.ordinal();
-            int classifierClassValue = tree.findMove(aTestSet);
+        //Build the confusionmatrix.
+        int[][] confusionMatrix = new int[5][5];
+        for (DataTuple dataTuple : testSet) {
+            int testTupleClassValue = dataTuple.DirectionChosen.ordinal();
+            int classifierClassValue = tree.findMove(dataTuple);
             if (testTupleClassValue == classifierClassValue) {
                 confusionMatrix[testTupleClassValue][testTupleClassValue] += 1;
-            } else if (testTupleClassValue != classifierClassValue) {
+            } else {
                 confusionMatrix[testTupleClassValue][classifierClassValue] += 1;
             }
         }
 
         //Compute the totals:
+        int accuracySum = 0;
+        int errorSum = 0;
         int lastColValue = 0;
         int totalValue = 0;
         for (int i = 0; i < confusionMatrix.length; i++) {
@@ -112,25 +116,29 @@ public class TreeBuilder {
                 lastColValue += confusionMatrix[j][i];
             }
             totalValue += totalRowValue;
-            confusionMatrix[i][5] = totalRowValue;
-            confusionMatrix[5][i] = lastColValue;
+            confusionMatrix[i][4] = totalRowValue;
+            confusionMatrix[4][i] = lastColValue;
             lastColValue = 0;
+
+            if (confusionMatrix.length != i + 1) {
+                accuracySum += confusionMatrix[i][i];
+                errorSum += confusionMatrix[i][4 - i];
+            }
         }
-        confusionMatrix[5][5] = totalValue;
+        confusionMatrix[4][4] = totalValue;
 
-        //print the matrix:
+        //print the matrix to the console.
         System.out.println("");
-        System.out.println(" Up  Right Down Left Neu  | Total");
-        System.out.println("__________________________|__________");
-
+        System.out.println(" Up  Right Down Left   | Total");
+        System.out.println("_______________________|__________");
         for (int i = 0; i < confusionMatrix.length; i++) {
-            if (i == 5) {
-                System.out.println("__________________________|__________");
+            if (i == 4) {
+                System.out.println("________________________|__________");
             }
 
             for (int j = 0; j < confusionMatrix[i].length; j++) {
 
-                if (j == 5) {
+                if (j == 4) {
                     System.out.print(" | ");
                 }
 
@@ -140,27 +148,17 @@ public class TreeBuilder {
                     System.out.print(" " + confusionMatrix[i][j] + " ");
                 }
             }
+
             System.out.println();
         }
 
-
-        //Find the accuracy
-        int accuracySum = 0;
-        int errorSum = 0;
-        for (int i = 0; i < confusionMatrix.length - 1; i++) {
-
-            accuracySum += confusionMatrix[i][i];
-            errorSum += confusionMatrix[i][5 - i];
-        }
-        double accuracyRes = (double) accuracySum / (double) confusionMatrix[5][5];
-        double errorRes = (double) errorSum / (double) confusionMatrix[5][5];
-
+        double accuracyRes = (double) accuracySum / (double) confusionMatrix[4][4];
+        double errorRes = (double) errorSum / (double) confusionMatrix[4][4];
         System.out.println("Accuracy Rate: " + accuracyRes);
         System.out.println("Error Rate: " + errorRes);
     }
 
-
-    //TODO Just some random attributes for now, maybe select other attributes.
+    //Creates and initializes a list with the attributes to include in the tree.
     private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
         //attributes.add(Attribute.isInkyEdible);
@@ -179,23 +177,24 @@ public class TreeBuilder {
         return attributes;
     }
 
-    //Returns true if the direction choosen class is the same value for all tuples.
-    private boolean allTuplesSameClass(DataTuple[] trainingSet) {
-        return Arrays.stream(trainingSet).allMatch(a -> a.DirectionChosen == trainingSet[0].DirectionChosen);
+    //Returns true if the direction chosen class is the same value for all tuples.
+    private boolean allTuplesSameClass(DataTuple[] set) {
+        return Arrays.stream(set).allMatch(a -> a.DirectionChosen == set[0].DirectionChosen);
     }
 
-    private int getMajorityClass(DataTuple[] trainingSet) {
+    //Returns the direction that most of the tuples in the set contains.
+    private int getMajorityClass(DataTuple[] set) {
         int majorityLabel = -1;
         long majorityValue = 0;
         for (int i = 0; i < 5; i++) {
             int finalI = i;
-            long nbrOfThisDirection = Arrays.stream(trainingSet).filter(a -> a.DirectionChosen.ordinal() == finalI).count();
+            long nbrOfThisDirection = Arrays.stream(set).filter(a -> a.DirectionChosen.ordinal() == finalI).count();
             if (nbrOfThisDirection > majorityValue) {
                 majorityLabel = i;
                 majorityValue = nbrOfThisDirection;
             }
         }
-        return majorityLabel; //TODO NEEDS TESTING!!!
+        return majorityLabel;
     }
 
     /**
@@ -205,13 +204,13 @@ public class TreeBuilder {
      * information gain provides every candidate attribute in the list. The one with the highest gain is chosen to
      * become A, the optimal attribut.
      */
-    private Attribute attributeSelection(DataTuple[] trainingSet, List<Attribute> attributes) {
-        double averageInformationGain = calculateAverageInformationGain(trainingSet);
+    private Attribute attributeSelection(DataTuple[] set, List<Attribute> attributes) {
+        double averageInformationGain = calculateAverageInformationGain(set);
 
         List<Pair<Attribute, Double>> attributesInformationGain = new ArrayList<>(attributes.size());
 
         for (Attribute attribute : attributes) {
-            double attributeInformationGain = averageInformationGain - calculateAttributeGain(trainingSet, attribute);
+            double attributeInformationGain = averageInformationGain - calculateAttributeGain(set, attribute);
             attributesInformationGain.add(new Pair(attribute, attributeInformationGain));
         }
 
@@ -223,12 +222,12 @@ public class TreeBuilder {
     }
 
     //Calculates the attribute gain for a single attribute.
-    private double calculateAttributeGain(DataTuple[] trainingSet, Attribute attribute) {
-        int totalNumberOfTuples = trainingSet.length;
+    private double calculateAttributeGain(DataTuple[] set, Attribute attribute) {
+        int totalNumberOfTuples = set.length;
         double informationGain = 0.0;
         int nbrOfSubsets = getNumberOfSubsets(attribute);
         for (int i = 0; i < nbrOfSubsets; i++) {
-            List<DataTuple> subSet = getSubset(trainingSet, attribute, i);
+            List<DataTuple> subSet = getSubset(set, attribute, i);
             double logValue = 0.0;
             for (int j = 0; j < 5; j++) {
                 int finalJ = j;
@@ -248,12 +247,12 @@ public class TreeBuilder {
     }
 
     //Calculates the average information gain on all the tuples in the data set.
-    private double calculateAverageInformationGain(DataTuple[] trainingSet) {
-        int totalNumberOfTuples = trainingSet.length;
+    private double calculateAverageInformationGain(DataTuple[] set) {
+        int totalNumberOfTuples = set.length;
         double informationGain = 0.0;
         for (int i = 0; i < 5; i++) {
             int finalI = i;
-            long nbrOfThisDirection = Arrays.stream(trainingSet).filter(a -> a.DirectionChosen.ordinal() == finalI).count();
+            long nbrOfThisDirection = Arrays.stream(set).filter(a -> a.DirectionChosen.ordinal() == finalI).count();
             double result = ((double) nbrOfThisDirection / (double) totalNumberOfTuples);
             if (result != 0) {
                 informationGain += (-result * log2(result));

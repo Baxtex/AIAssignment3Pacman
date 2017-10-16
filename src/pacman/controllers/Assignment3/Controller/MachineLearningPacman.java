@@ -15,7 +15,7 @@ import static pacman.game.Constants.MOVE;
 public class MachineLearningPacman extends Controller<MOVE> {
 
 
-    private DecisionTree tree;
+    private final DecisionTree tree;
 
     public MachineLearningPacman() {
         TreeBuilder treeBuilder = new TreeBuilder();
