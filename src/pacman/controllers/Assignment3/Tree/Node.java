@@ -1,5 +1,6 @@
 package pacman.controllers.Assignment3.Tree;
 
+import pacman.controllers.Assignment3.Tree.Attribute.Attribute;
 import pacman.game.Constants;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ public class Node {
 
     private final List<Node> children = new ArrayList<>();
 
-    private  Attribute attribute;
+    private Attribute attribute;
 
     private Constants.MOVE direction;
 

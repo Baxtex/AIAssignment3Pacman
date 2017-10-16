@@ -24,9 +24,6 @@ public class MachineLearningPacman extends Controller<MOVE> {
 
     @Override
     public MOVE getMove(Game game, long timeDue) {
-
-        //TODO: While time hasn't run out...
-        MOVE move = tree.findMove(game);
-        return move;
+        return tree.findMove(game);
     }
 }

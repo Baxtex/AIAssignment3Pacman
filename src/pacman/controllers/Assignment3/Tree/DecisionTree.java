@@ -4,28 +4,32 @@ import dataRecording.DataTuple;
 import pacman.game.Constants;
 import pacman.game.Game;
 
+import static pacman.controllers.Assignment3.Tree.Attribute.Utility.getAttributeValue;
+
 public class DecisionTree {
 
     private final Node root;
-
 
     public DecisionTree(Node root) {
         this.root = root;
     }
 
+    //TODO implement.
     public Constants.MOVE findMove(Game game) {
         return null;
     }
 
+    //Returns the resulting direction from putting the given tuple in the tree.
     public int findMove(DataTuple dataTuple) {
-
-        return 0;
+        Node node = root;
+        while (!node.isLeaf()) {
+            int attributeValue = getAttributeValue(dataTuple, root.getAttribute());
+            node = node.getChildren().get(attributeValue);
+        }
+        return node.getDirection().ordinal();
     }
 
-    public Node getRoot(){
-        return root;
-    }
-
+    //Prints a visual representation of the tree to the console.
     public void printTree() {
         root.print(1);
     }

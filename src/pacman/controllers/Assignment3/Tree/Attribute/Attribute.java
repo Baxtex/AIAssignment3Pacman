@@ -1,4 +1,4 @@
-package pacman.controllers.Assignment3.Tree;
+package pacman.controllers.Assignment3.Tree.Attribute;
 
 public enum Attribute {
     DirectionChosen,

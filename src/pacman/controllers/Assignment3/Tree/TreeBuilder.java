@@ -2,9 +2,13 @@ package pacman.controllers.Assignment3.Tree;
 
 import dataRecording.DataSaverLoader;
 import dataRecording.DataTuple;
+import pacman.controllers.Assignment3.Tree.Attribute.Attribute;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static pacman.controllers.Assignment3.Tree.Attribute.Utility.getAttributeValue;
+import static pacman.controllers.Assignment3.Tree.Attribute.Utility.getNumberOfSubsets;
 
 /**
  * Builds a decision tree by using the ID3 approach.
@@ -20,10 +24,11 @@ public class TreeBuilder {
         DecisionTree tree = new DecisionTree(generateTree(trainingSet, attributes));
         tree.printTree();
         testAccuracy(tree, testSet);
-        return null;
+
+        return tree;
     }
 
-    //TODO Fix, tree is built the wrong way...
+    //Generates the tree recursivly in a depth first approach.
     private Node generateTree(DataTuple[] set, ArrayList<Attribute> attributes) {
 
         Node node;
@@ -39,8 +44,6 @@ public class TreeBuilder {
         } else {
 
             Attribute attribute = attributeSelection(set, attributes);
-
-            attributes.remove(attribute);
 
             node = new Node(attribute);
 
@@ -91,7 +94,7 @@ public class TreeBuilder {
         int[][] confusionMatrix = new int[6][6];
         for (DataTuple aTestSet : testSet) {
             int testTupleClassValue = aTestSet.DirectionChosen.ordinal();
-            int classifierClassValue = findMove(aTestSet, tree.getRoot());
+            int classifierClassValue = tree.findMove(aTestSet);
             if (testTupleClassValue == classifierClassValue) {
                 confusionMatrix[testTupleClassValue][testTupleClassValue] += 1;
             } else if (testTupleClassValue != classifierClassValue) {
@@ -156,15 +159,6 @@ public class TreeBuilder {
         System.out.println("Error Rate: " + errorRes);
     }
 
-    //To be moved to the decisionstree class later, just used for testing for now.
-    private int findMove(DataTuple dataTuple, Node root) {
-
-        while (!root.isLeaf()) {
-            int attributeValue = getAttributeValue(dataTuple, root.getAttribute());
-            root = root.getChildren().get(attributeValue);
-        }
-        return root.getDirection().ordinal();
-    }
 
     //TODO Just some random attributes for now, maybe select other attributes.
     private ArrayList<Attribute> initializeAttributesList() {
@@ -205,86 +199,6 @@ public class TreeBuilder {
         return majorityLabel; //TODO NEEDS TESTING!!!
     }
 
-    //TODO Add all the relevant Attributes.
-    private int getAttributeValue(DataTuple tuple, Attribute attribute) {
-        switch (attribute) {
-            case isBlinkyEdible:
-                return tuple.normalizeBoolean(tuple.isBlinkyEdible);
-            case isInkyEdible:
-                return tuple.normalizeBoolean(tuple.isInkyEdible);
-            case isPinkyEdible:
-                return tuple.normalizeBoolean(tuple.isPinkyEdible);
-            case isSueEdible:
-                return tuple.normalizeBoolean(tuple.isSueEdible);
-            case blinkyDir:
-                return tuple.blinkyDir.ordinal();
-            case inkyDir:
-                return tuple.inkyDir.ordinal();
-            case pinkyDir:
-                return tuple.pinkyDir.ordinal();
-            case sueDir:
-                return tuple.sueDir.ordinal();
-            case numberOfTotalPillsInLevel:
-                return tuple.discretizeNumberOfPowerPills(tuple.numberOfTotalPillsInLevel).ordinal();
-            case numOfPillsLeft:
-                return tuple.discretizeNumberOfPowerPills(tuple.numOfPillsLeft).ordinal();
-            case numberOfTotalPowerPillsInLevel:
-                return tuple.discretizeNumberOfPowerPills(tuple.numberOfTotalPowerPillsInLevel).ordinal();
-            case numPowerPillsLeft:
-                return tuple.discretizeNumberOfPowerPills(tuple.numOfPowerPillsLeft).ordinal();
-            case pacmanPosition:
-                return tuple.discretizePosition(tuple.pacmanPosition).ordinal();
-            case currentScore:
-                return tuple.discretizeCurrentScore(tuple.currentScore).ordinal();
-            case currentLevelTime:
-                return tuple.discretizeCurrentLevelTime(tuple.currentLevelTime).ordinal();
-            case pacmanLivesLeft:
-                return tuple.pacmanLivesLeft;
-        }
-
-        return -100000; //Attribute not found
-    }
-
-    //TODO All all relevant attributes and a switch statement.
-    private int getNumberOfSubsets(Attribute attribute) {
-        switch (attribute) {
-            case isBlinkyEdible:
-                return 2;
-            case isInkyEdible:
-                return 2;
-            case isPinkyEdible:
-                return 2;
-            case isSueEdible:
-                return 2;
-            case blinkyDir:
-                return 4;
-            case inkyDir:
-                return 4;
-            case pinkyDir:
-                return 4;
-            case sueDir:
-                return 4;
-            case numberOfTotalPillsInLevel:
-                return 5;
-            case numOfPillsLeft:
-                return 5;
-            case numberOfTotalPowerPillsInLevel:
-                return 5;
-            case numPowerPillsLeft:
-                return 5;
-            case pacmanPosition:
-                return 5;
-            case currentScore:
-                return 5;
-            case currentLevelTime:
-                return 5;
-            case pacmanLivesLeft:
-                return 4;
-
-        }
-        return -100000; //Attribute not found
-    }
-
     /**
      * Attribute selection method which is built with the ID3 algorithm.
      * ID3 is short for Iterative Dichotomiser.
@@ -303,6 +217,8 @@ public class TreeBuilder {
         }
 
         Pair<Attribute, Double> res = Collections.max(attributesInformationGain, Comparator.comparingDouble(p -> (double) p.second));
+
+        attributes.remove(res.first);
         return res.first;
 
     }
