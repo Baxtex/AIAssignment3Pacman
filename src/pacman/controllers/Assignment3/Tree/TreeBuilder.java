@@ -153,8 +153,8 @@ public class TreeBuilder {
 
         double accuracyRes = accuracySum / (double) confusionMatrix[4][4];
         double errorRes = errorSum / (double) confusionMatrix[4][4];
-        System.out.println("Accuracy: " + String.format("%.1f",accuracyRes*100)+"%");
-        System.out.println("Error   : " + String.format("%.1f",errorRes*100)+"% \n");
+        System.out.println("Accuracy: " + String.format("%.1f", accuracyRes * 100) + "%");
+        System.out.println("Error   : " + String.format("%.1f", errorRes * 100) + "% \n");
 
     }
 
@@ -171,7 +171,7 @@ public class TreeBuilder {
         attributes.add(Attribute.numOfPillsLeft);
         //attributes.add(Attribute.numPowerPillsLeft);
         // attributes.add(Attribute.pacmanPosition);
-        attributes.add(Attribute.currentScore);
+        //attributes.add(Attribute.currentScore); //Might need to revise the discretizier here.
         //attributes.add(Attribute.currentLevelTime);
         attributes.add(Attribute.pacmanLivesLeft);
         attributes.add(Attribute.totalGameTime);
@@ -219,7 +219,7 @@ public class TreeBuilder {
         List<Pair<Attribute, Double>> attributesInformationGain = new ArrayList<>(attributes.size());
 
         for (Attribute attribute : attributes) {
-            double attributeInformationGain = averageInformationGain - calculateAttributeGain(set, attribute);
+            double attributeInformationGain = (averageInformationGain - calculateAttributeGain(set, attribute));
             attributesInformationGain.add(new Pair(attribute, attributeInformationGain));
         }
 
@@ -231,44 +231,49 @@ public class TreeBuilder {
     }
 
     /**
-     * Calculates the attribute gain for a single attribute.
+     * Calculates the average information gain on all the tuples in the data set.
      */
-    private double calculateAttributeGain(DataTuple[] set, Attribute attribute) {
+    private double calculateAverageInformationGain(DataTuple[] set) {
         int totalNumberOfTuples = set.length;
         double informationGain = 0.0;
-        int nbrOfSubsets = attribute.getNbrOfAttributeValues();
-        for (int i = 0; i < nbrOfSubsets; i++) {
-            List<DataTuple> subSet = getSubset(set, attribute, i);
-            double logValue = 0.0;
-            for (int j = 0; j < 5; j++) {
-                int finalJ = j;
-                long nbrOfThisDirection = subSet.stream().filter(a -> a.DirectionChosen.ordinal() == finalJ).count();
-
-                double result = ((double) nbrOfThisDirection / (double) subSet.size());
-                if (subSet.size() != 0 && result != 0) {
-                    logValue += (-result * log2(result));
-                }
-            }
-            double result = ((double) subSet.size() / (double) totalNumberOfTuples) * logValue;
+        //For every value of the class atrribute, 4 directions.
+        for (int i = 0; i < 4; i++) {
+            int finalI = i;
+            long nbrOfThisDirection = Arrays.stream(set).filter(a -> a.DirectionChosen.ordinal() == finalI).count();
+            double result = ((double) nbrOfThisDirection / (double) totalNumberOfTuples);
             if (result != 0) {
-                informationGain += result;
+                informationGain += (-result * log2(result));
             }
         }
         return informationGain;
     }
 
     /**
-     * Calculates the average information gain on all the tuples in the data set.
+     * Calculates the attribute gain for a single attribute.
      */
-    private double calculateAverageInformationGain(DataTuple[] set) {
+    private double calculateAttributeGain(DataTuple[] set, Attribute attribute) {
         int totalNumberOfTuples = set.length;
         double informationGain = 0.0;
-        for (int i = 0; i < 5; i++) {
-            int finalI = i;
-            long nbrOfThisDirection = Arrays.stream(set).filter(a -> a.DirectionChosen.ordinal() == finalI).count();
-            double result = ((double) nbrOfThisDirection / (double) totalNumberOfTuples);
+        int nbrOfSubsets = attribute.getNbrOfAttributeValues();
+
+        //For all attribute values, i e true, false, up, right, down etc.
+        for (int i = 0; i < nbrOfSubsets; i++) {
+            List<DataTuple> subSetAttributeValue = getSubset(set, attribute, i);
+
+            double attributeClassValue = 0.0;
+            //For every value of the class atrribute, 4 directions.
+            for (int j = 0; j < 4; j++) {
+                int finalJ = j;
+                long nbrOfThisDirection = subSetAttributeValue.stream().filter(a -> a.DirectionChosen.ordinal() == finalJ).count();
+                double result = ((double) nbrOfThisDirection / (double) subSetAttributeValue.size());
+                if (subSetAttributeValue.size() != 0 && result != 0) {
+                    attributeClassValue += (-result * log2(result));
+                }
+            }
+
+            double result = ((double) subSetAttributeValue.size() / (double) totalNumberOfTuples) * attributeClassValue;
             if (result != 0) {
-                informationGain += (-result * log2(result));
+                informationGain += result;
             }
         }
         return informationGain;
