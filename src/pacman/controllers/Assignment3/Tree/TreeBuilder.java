@@ -8,10 +8,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static pacman.controllers.Assignment3.Tree.Attribute.Utility.getAttributeValue;
-import static pacman.controllers.Assignment3.Tree.Attribute.Utility.getNumberOfSubsets;
+
 
 /**
- * Builds a decision tree by using the ID3 approach.
+ * Automatic construction of a decision tree using the ID3 method to select attributes.
  */
 public class TreeBuilder {
 
@@ -23,49 +23,39 @@ public class TreeBuilder {
 
         DecisionTree tree = new DecisionTree(generateTree(trainingSet, attributes));
 
-        testAccuracy(tree, testSet);
+        calculateConfusionMatrix(tree, testSet);
         tree.printTree();
         return tree;
     }
 
-    //Generates the tree recursivly in a depth first approach.
+    /**
+     * Generates the tree recursivly in a depth first approach.
+     */
     private Node generateTree(DataTuple[] set, ArrayList<Attribute> attributes) {
-
         Node node;
-
         if (allTuplesSameClass(set)) {
-
             node = new Node(set[0].DirectionChosen.ordinal());
-
         } else if (attributes.isEmpty()) {
-
             node = new Node(getMajorityClass(set));
-
         } else {
-
             Attribute attribute = attributeSelection(set, attributes);
-
             node = new Node(attribute);
 
-            for (int i = 0; i < getNumberOfSubsets(attribute); i++) {
-
+            for (int i = 0; i < attribute.getNbrOfAttributeValues(); i++) {
                 List<DataTuple> subSet = getSubset(set, attribute, i);
-
                 if (subSet.isEmpty()) {
-
                     node.addChild(new Node(getMajorityClass(set)));
-
                 } else {
-
                     node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes));
-
                 }
             }
         }
         return node;
     }
 
-    //Takes the first 70% tuples as trainingset.
+    /**
+     * Takes the first 70% tuples as trainingset.
+     */
     private DataTuple[] getTrainingSet(DataTuple[] dataSet) {
         int seventyPercent = (int) (dataSet.length * 0.7);
         DataTuple[] trainingSet = new DataTuple[seventyPercent];
@@ -73,7 +63,9 @@ public class TreeBuilder {
         return trainingSet;
     }
 
-    //Takes the last 30% as testset
+    /**
+     * Takes the last 30% as testset
+     */
     private DataTuple[] getTestSet(DataTuple[] dataSet, int startIndex) {
         int thirtyPercent = (dataSet.length - startIndex);
         DataTuple[] testSet = new DataTuple[thirtyPercent];
@@ -84,19 +76,23 @@ public class TreeBuilder {
         return testSet;
     }
 
-    //Selects and returns a subset from the given set for certain attribute value.
+    /**
+     * Selects and returns a subset from the given set for certain attribute value.
+     */
     private List<DataTuple> getSubset(DataTuple[] trainingSet, Attribute attribute, int finalI) {
         return Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
     }
 
-    //Test the classifier with the testset to calculate the accuracy level of it with a confusion matrix.
-    private void testAccuracy(DecisionTree tree, DataTuple[] testSet) {
+    /**
+     * Builds and calculates the confusion matrix.
+     */
+    private void calculateConfusionMatrix(DecisionTree tree, DataTuple[] set) {
 
         //Build the confusionmatrix.
         int[][] confusionMatrix = new int[5][5];
-        for (DataTuple dataTuple : testSet) {
+        for (DataTuple dataTuple : set) {
             int testTupleClassValue = dataTuple.DirectionChosen.ordinal();
-            int classifierClassValue = tree.findMove(dataTuple);
+            int classifierClassValue = tree.findMove(dataTuple).ordinal();
             if (testTupleClassValue == classifierClassValue) {
                 confusionMatrix[testTupleClassValue][testTupleClassValue] += 1;
             } else {
@@ -127,7 +123,10 @@ public class TreeBuilder {
         }
         confusionMatrix[4][4] = totalValue;
 
-        //print the matrix to the console.
+        printConfusionMatrix(confusionMatrix, accuracySum, errorSum);
+    }
+
+    private void printConfusionMatrix(int[][] confusionMatrix, double accuracySum, double errorSum) {
         System.out.println("");
         System.out.println(" Up  Right Down Left   | Total");
         System.out.println("_______________________|__________");
@@ -152,8 +151,8 @@ public class TreeBuilder {
             System.out.println();
         }
 
-        double accuracyRes = (double) accuracySum / (double) confusionMatrix[4][4];
-        double errorRes = (double) errorSum / (double) confusionMatrix[4][4];
+        double accuracyRes = accuracySum / (double) confusionMatrix[4][4];
+        double errorRes = errorSum / (double) confusionMatrix[4][4];
         System.out.println("Accuracy Rate: " + accuracyRes);
         System.out.println("Error Rate: " + errorRes);
     }
@@ -161,7 +160,7 @@ public class TreeBuilder {
     //Creates and initializes a list with the attributes to include in the tree.
     private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
-       // attributes.add(Attribute.isInkyEdible);
+        // attributes.add(Attribute.isInkyEdible);
         //attributes.add(Attribute.isPinkyEdible);
         attributes.add(Attribute.isSueEdible);
         //attributes.add(Attribute.blinkyDir);
@@ -170,27 +169,28 @@ public class TreeBuilder {
         //attributes.add(Attribute.sueDir);
         attributes.add(Attribute.numOfPillsLeft);
         //attributes.add(Attribute.numPowerPillsLeft);
-       // attributes.add(Attribute.pacmanPosition);
+        // attributes.add(Attribute.pacmanPosition);
         attributes.add(Attribute.currentScore);
         //attributes.add(Attribute.currentLevelTime);
         attributes.add(Attribute.pacmanLivesLeft);
         attributes.add(Attribute.totalGameTime);
         //attributes.add(Attribute.blinkyDist);
-       // attributes.add(Attribute.inkyDist);
+        // attributes.add(Attribute.inkyDist);
         attributes.add(Attribute.pinkyDist);
         //attributes.add(Attribute.sueDist);
-
-
         return attributes;
     }
 
-
-    //Returns true if the direction chosen class is the same value for all tuples.
+    /**
+     * Returns true if the direction chosen class is the same value for all tuples.
+     */
     private boolean allTuplesSameClass(DataTuple[] set) {
         return Arrays.stream(set).allMatch(a -> a.DirectionChosen == set[0].DirectionChosen);
     }
 
-    //Returns the direction that most of the tuples in the set contains.
+    /**
+     * Returns the direction that most of the tuples class value in the given set.
+     */
     private int getMajorityClass(DataTuple[] set) {
         int majorityLabel = -1;
         long majorityValue = 0;
@@ -229,11 +229,13 @@ public class TreeBuilder {
 
     }
 
-    //Calculates the attribute gain for a single attribute.
+    /**
+     * Calculates the attribute gain for a single attribute.
+     */
     private double calculateAttributeGain(DataTuple[] set, Attribute attribute) {
         int totalNumberOfTuples = set.length;
         double informationGain = 0.0;
-        int nbrOfSubsets = getNumberOfSubsets(attribute);
+        int nbrOfSubsets = attribute.getNbrOfAttributeValues();
         for (int i = 0; i < nbrOfSubsets; i++) {
             List<DataTuple> subSet = getSubset(set, attribute, i);
             double logValue = 0.0;
@@ -254,7 +256,9 @@ public class TreeBuilder {
         return informationGain;
     }
 
-    //Calculates the average information gain on all the tuples in the data set.
+    /**
+     * Calculates the average information gain on all the tuples in the data set.
+     */
     private double calculateAverageInformationGain(DataTuple[] set) {
         int totalNumberOfTuples = set.length;
         double informationGain = 0.0;
@@ -269,12 +273,16 @@ public class TreeBuilder {
         return informationGain;
     }
 
-    //Returns the log2 of a double.
+    /**
+     * Returns the log2 of a double.
+     */
     private double log2(double n) {
         return (Math.log(n) / Math.log(2));
     }
 
-    //Generic pair/wrapper class that contains two values.
+    /**
+     * Generic pair/wrapper class that contains two values.
+     */
     private class Pair<T, U> {
         final T first;
         final U second;

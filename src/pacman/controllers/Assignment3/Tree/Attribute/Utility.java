@@ -4,7 +4,9 @@ import dataRecording.DataTuple;
 
 public class Utility {
 
-    //Returns the discrete attribute value for a given tuple and specified attribute.
+    /**
+     * Returns the discrete attribute value for a given tuple and specified attribute.
+     */
     public static int getAttributeValue(DataTuple tuple, Attribute attribute) {
         switch (attribute) {
             case isBlinkyEdible:
@@ -50,57 +52,6 @@ public class Utility {
             case pacmanLivesLeft:
                 return tuple.pacmanLivesLeft;
         }
-
-        return -100000; //Attribute not found
-    }
-
-    //Returns the number of values a specific attribute can have.
-    public static int getNumberOfSubsets(Attribute attribute) {
-        switch (attribute) {
-            case isBlinkyEdible:
-                return 2;
-            case isInkyEdible:
-                return 2;
-            case isPinkyEdible:
-                return 2;
-            case isSueEdible:
-                return 2;
-            case blinkyDir:
-                return 4;
-            case inkyDir:
-                return 4;
-            case pinkyDir:
-                return 4;
-            case sueDir:
-                return 4;
-            case blinkyDist:
-                return 6;
-            case inkyDist:
-                return 6;
-            case pinkyDist:
-                return 6;
-            case sueDist:
-                return 6;
-            case numberOfTotalPillsInLevel:
-                return 5;
-            case numOfPillsLeft:
-                return 5;
-            case numberOfTotalPowerPillsInLevel:
-                return 5;
-            case numPowerPillsLeft:
-                return 5;
-            case pacmanPosition:
-                return 5;
-            case currentScore:
-                return 5;
-            case currentLevelTime:
-                return 5;
-            case pacmanLivesLeft:
-                return 4;
-            case totalGameTime:
-                return 5;
-
-        }
-        return -100000; //Attribute not found
+        throw new IllegalStateException("Attribute value was not found!");
     }
 }

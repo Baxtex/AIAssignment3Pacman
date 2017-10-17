@@ -1,7 +1,6 @@
 package pacman.controllers.Assignment3.Tree;
 
 import pacman.controllers.Assignment3.Tree.Attribute.Attribute;
-import pacman.game.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +16,24 @@ class Node {
 
     private Attribute attribute;
 
-    private Constants.MOVE direction;
+    private MOVE direction;
 
     private int attributeValue = -1;
 
+    /**
+     * Constructor that sets the attribute that this Node represents.
+     *
+     * @param attribute
+     */
     public Node(Attribute attribute) {
         this.attribute = attribute;
     }
 
+    /**
+     * Takes the direction as an ordinal and sets this Node's
+     * Move direction to the correct Move.
+     * @param direction
+     */
     public Node(int direction) {
         if (direction == 0) {
             this.direction = MOVE.UP;
@@ -37,8 +46,8 @@ class Node {
         }
     }
 
-    private void setAttributeValue(int i) {
-        attributeValue = i;
+    private void setAttributeValue(int attributeValue) {
+        this.attributeValue = attributeValue;
     }
 
     public void addChild(Node child) {
@@ -50,7 +59,7 @@ class Node {
         return this.children;
     }
 
-    public Constants.MOVE getDirection() {
+    public MOVE getDirection() {
         return direction;
     }
 

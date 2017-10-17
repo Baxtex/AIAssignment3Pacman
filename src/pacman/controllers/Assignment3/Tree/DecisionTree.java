@@ -1,7 +1,6 @@
 package pacman.controllers.Assignment3.Tree;
 
 import dataRecording.DataTuple;
-import pacman.game.Constants;
 import pacman.game.Game;
 
 import static pacman.controllers.Assignment3.Tree.Attribute.Utility.getAttributeValue;
@@ -15,41 +14,32 @@ public class DecisionTree {
         this.root = root;
     }
 
-    //Finds a move given the state of the game.
-    public Constants.MOVE findMove(Game game) {
-
-        DataTuple dataTuple = new DataTuple(game, Constants.MOVE.NEUTRAL);
-        int moveOrdinal = findMove(dataTuple);
-
-        switch (moveOrdinal) {
-            case 0:
-                return MOVE.UP;
-            case 1:
-                return MOVE.RIGHT;
-            case 2:
-                return MOVE.DOWN;
-            case 3:
-                return MOVE.LEFT;
-        }
-        assert moveOrdinal > -1 && moveOrdinal < 5;
-        return Constants.MOVE.NEUTRAL;
+    /**
+     * Finds a move given the state of the game.
+     */
+    public MOVE findMove(Game game) {
+        return findMove(new DataTuple(game, MOVE.NEUTRAL));
     }
 
-    //Returns a ordinal of the move to make given that datatuple was sent to the tree.
-    public int findMove(DataTuple dataTuple) {
-        String treeTraverser = "";
+    /**
+     * Returns a ordinal of the move to make given that dataTuple was sent to the tree.
+     */
+    public MOVE findMove(DataTuple dataTuple) {
+        StringBuilder treeTravelerStr = new StringBuilder();
         Node node = root;
         while (!node.isLeaf()) {
             int attributeValue = getAttributeValue(dataTuple, node.getAttribute());
-            treeTraverser += node.getAttribute().name() + "->" +attributeValue + " ";
+            treeTravelerStr.append(node.getAttribute().name()).append("->").append(attributeValue).append(" ");
             node = node.getChildren().get(attributeValue);
         }
-        treeTraverser += ":" + node.getDirection().name();
-        System.out.println(treeTraverser);
-        return node.getDirection().ordinal();
+        treeTravelerStr.append(":").append(node.getDirection().name());
+        System.out.println(treeTravelerStr);
+        return node.getDirection();
     }
 
-    //Prints a visual representation of the tree to the console.
+    /**
+     * Prints a visual representation of the tree to the console.
+     */
     public void printTree() {
         root.print(1);
     }
