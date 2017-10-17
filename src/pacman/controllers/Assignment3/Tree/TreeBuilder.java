@@ -23,8 +23,9 @@ public class TreeBuilder {
 
         DecisionTree tree = new DecisionTree(generateTree(trainingSet, attributes));
 
-        calculateConfusionMatrix(tree, testSet);
         tree.printTree();
+        calculateConfusionMatrix(tree, testSet);
+
         return tree;
     }
 
@@ -96,7 +97,7 @@ public class TreeBuilder {
             if (testTupleClassValue == classifierClassValue) {
                 confusionMatrix[testTupleClassValue][testTupleClassValue] += 1;
             } else {
-                confusionMatrix[testTupleClassValue][classifierClassValue] += 1;
+                confusionMatrix[testTupleClassValue][classifierClassValue] += 1;  //TODO Check this.
             }
         }
 
@@ -127,13 +128,16 @@ public class TreeBuilder {
     }
 
     private void printConfusionMatrix(int[][] confusionMatrix, double accuracySum, double errorSum) {
-        System.out.println("");
-        System.out.println(" Up  Right Down Left   | Total");
-        System.out.println("_______________________|__________");
+        String[] leftLabels = new String[]{"Up  ", "Right  ", "Down  ", "Left  ", "Totals    "};
+        String[] leftClassLabel = new String[]{"Pr    ", "re ", "di  ", "ct  ", ""};
+
+        System.out.println("\nActual       Up  Right Down Left | Total");
+        System.out.println("_____________________________|__________");
         for (int i = 0; i < confusionMatrix.length; i++) {
             if (i == 4) {
-                System.out.println("________________________|__________");
+                System.out.println("_______________________________|__________");
             }
+            System.out.print(leftClassLabel[i] + " " + leftLabels[i] + "|");
 
             for (int j = 0; j < confusionMatrix[i].length; j++) {
 
@@ -164,7 +168,7 @@ public class TreeBuilder {
         // attributes.add(Attribute.isInkyEdible);
         //attributes.add(Attribute.isPinkyEdible);
         attributes.add(Attribute.isSueEdible);
-        //attributes.add(Attribute.blinkyDir);
+        attributes.add(Attribute.blinkyDir);
         //attributes.add(Attribute.inkyDir);
         //attributes.add(Attribute.pinkyDir);
         //attributes.add(Attribute.sueDir);
