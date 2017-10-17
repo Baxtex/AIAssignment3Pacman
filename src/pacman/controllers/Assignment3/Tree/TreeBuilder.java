@@ -153,8 +153,9 @@ public class TreeBuilder {
 
         double accuracyRes = accuracySum / (double) confusionMatrix[4][4];
         double errorRes = errorSum / (double) confusionMatrix[4][4];
-        System.out.println("Accuracy Rate: " + accuracyRes);
-        System.out.println("Error Rate: " + errorRes);
+        System.out.println("Accuracy: " + String.format("%.1f",accuracyRes*100)+"%");
+        System.out.println("Error   : " + String.format("%.1f",errorRes*100)+"% \n");
+
     }
 
     //Creates and initializes a list with the attributes to include in the tree.
@@ -222,7 +223,7 @@ public class TreeBuilder {
             attributesInformationGain.add(new Pair(attribute, attributeInformationGain));
         }
 
-        Pair<Attribute, Double> res = Collections.max(attributesInformationGain, Comparator.comparingDouble(p -> (double) p.second));
+        Pair<Attribute, Double> res = Collections.max(attributesInformationGain, Comparator.comparingDouble(p -> p.second));
 
         attributes.remove(res.first);
         return res.first;
