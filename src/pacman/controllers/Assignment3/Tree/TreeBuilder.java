@@ -16,7 +16,7 @@ import static pacman.controllers.Assignment3.Tree.Attribute.Utility.getAttribute
 public class TreeBuilder {
 
     public DecisionTree buildDecisionTree() {
-        Pair<DataTuple[], DataTuple[]> splitSets = getDataSets();
+        Pair<DataTuple[], DataTuple[]> splitSets = getDataSetsBootstraping();
         DataTuple[] trainingSet = splitSets.first;
         DataTuple[] testSet = splitSets.second;
 
@@ -24,16 +24,41 @@ public class TreeBuilder {
 
         DecisionTree tree = new DecisionTree(generateTree(trainingSet, attributes));
 
-        tree.printTree();
-        calculateConfusionMatrix(tree, testSet);
 
+        calculateConfusionMatrix(tree, testSet);
+        tree.printTree();
         return tree;
+    }
+
+    /**
+     * Generates the tree recursivly in a depth first approach.
+     */
+    private Node generateTree(DataTuple[] set, ArrayList<Attribute> attributes) {
+        Node node;
+        if (allTuplesSameClass(set)) {
+            node = new Node(set[0].DirectionChosen.ordinal());
+        } else if (attributes.isEmpty()) {
+            node = new Node(getMajorityClass(set));
+        } else {
+            Attribute attribute = attributeSelectionC45(set, attributes);
+            node = new Node(attribute);
+
+            for (int i = 0; i < attribute.getNbrOfAttributeValues(); i++) {
+                List<DataTuple> subSet = getSubset(set, attribute, i);
+                if (subSet.isEmpty()) {
+                    node.addChild(new Node(getMajorityClass(set)));
+                } else {
+                    node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes));
+                }
+            }
+        }
+        return node;
     }
 
     /**
      * Gets the data set and splits it into training and test set by bootstraping and returning it.
      */
-    private Pair<DataTuple[], DataTuple[]> getDataSets() {
+    private Pair<DataTuple[], DataTuple[]> getDataSetsBootstraping() {
         DataTuple[] dataSet = DataSaverLoader.LoadPacManData();
         List<DataTuple> trainingSet = new ArrayList<>();
 
@@ -58,32 +83,6 @@ public class TreeBuilder {
         return new Pair<>(trainingSetArray, testSetArray);
     }
 
-    /**
-     * Generates the tree recursivly in a depth first approach.
-     */
-    private Node generateTree(DataTuple[] set, ArrayList<Attribute> attributes) {
-        Node node;
-        if (allTuplesSameClass(set)) {
-            node = new Node(set[0].DirectionChosen.ordinal());
-        } else if (attributes.isEmpty()) {
-            node = new Node(getMajorityClass(set));
-        } else {
-            Attribute attribute = attributeSelection(set, attributes);
-            node = new Node(attribute);
-
-            for (int i = 0; i < attribute.getNbrOfAttributeValues(); i++) {
-                List<DataTuple> subSet = getSubset(set, attribute, i);
-                if (subSet.isEmpty()) {
-                    node.addChild(new Node(getMajorityClass(set)));
-                } else {
-                    node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes));
-                }
-            }
-        }
-        return node;
-    }
-
-
     public static <T> boolean contains(final T[] array, final T v) {
         if (v == null) {
             for (final T e : array)
@@ -99,26 +98,23 @@ public class TreeBuilder {
     }
 
     /**
-     * Takes the first 70% tuples as trainingset.
+     * Splits the data set by 70/30.
      */
-    private DataTuple[] getTrainingSet(DataTuple[] dataSet) {
+    private Pair<DataTuple[], DataTuple[]> getDataSetsSimpleSplit() {
+        DataTuple[] dataSet = DataSaverLoader.LoadPacManData();
         int seventyPercent = (int) (dataSet.length * 0.7);
         DataTuple[] trainingSet = new DataTuple[seventyPercent];
         System.arraycopy(dataSet, 0, trainingSet, 0, seventyPercent);
-        return trainingSet;
-    }
 
-    /**
-     * Takes the last 30% as testset
-     */
-    private DataTuple[] getTestSet(DataTuple[] dataSet, int startIndex) {
+        int startIndex = trainingSet.length;
         int thirtyPercent = (dataSet.length - startIndex);
         DataTuple[] testSet = new DataTuple[thirtyPercent];
         for (int i = 0; startIndex < dataSet.length; i++) {
             testSet[i] = dataSet[startIndex];
             startIndex++;
         }
-        return testSet;
+
+        return new Pair<>(trainingSet, testSet);
     }
 
     /**
@@ -259,7 +255,7 @@ public class TreeBuilder {
      * information gain provides every candidate attribute in the list. The one with the highest gain is chosen to
      * become A, the optimal attribut.
      */
-    private Attribute attributeSelection(DataTuple[] set, List<Attribute> attributes) {
+    private Attribute attributeSelectionID3(DataTuple[] set, List<Attribute> attributes) {
         double averageInformationGain = calculateAverageInformationGain(set);
 
         List<Pair<Attribute, Double>> attributesInformationGain = new ArrayList<>(attributes.size());
@@ -274,6 +270,25 @@ public class TreeBuilder {
         attributes.remove(res.first);
         return res.first;
 
+    }
+
+    /**
+     * C4.5 is an extension of the ID3 algorithm. It looks at the GainRatio by dividing the attribute information gain by the splitinfo gain.
+     */
+    private Attribute attributeSelectionC45(DataTuple[] set, List<Attribute> attributes) {
+        double averageInformationGain = calculateAverageInformationGain(set);
+
+        List<Pair<Attribute, Double>> attributesInformationGain = new ArrayList<>(attributes.size());
+        for (Attribute attribute : attributes) {
+            double averageGainAttribute = calculateAttributeGain(set, attribute);
+            double gainRatio = ((averageInformationGain - averageGainAttribute) / averageGainAttribute);
+            attributesInformationGain.add(new Pair(attribute, gainRatio));
+        }
+
+        Pair<Attribute, Double> res = Collections.max(attributesInformationGain, Comparator.comparingDouble(p -> p.second));
+
+        attributes.remove(res.first);
+        return res.first;
     }
 
     /**
