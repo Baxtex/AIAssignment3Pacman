@@ -16,9 +16,10 @@ import static pacman.controllers.Assignment3.Tree.Attribute.Utility.getAttribute
 public class TreeBuilder {
 
     public DecisionTree buildDecisionTree() {
-        DataTuple[] dataSet = DataSaverLoader.LoadPacManData();
-        DataTuple[] trainingSet = getTrainingSet(dataSet);
-        DataTuple[] testSet = getTestSet(dataSet, trainingSet.length);
+        Pair<DataTuple[], DataTuple[]> splitSets = getDataSets();
+        DataTuple[] trainingSet = splitSets.first;
+        DataTuple[] testSet = splitSets.second;
+
         ArrayList<Attribute> attributes = initializeAttributesList();
 
         DecisionTree tree = new DecisionTree(generateTree(trainingSet, attributes));
@@ -27,6 +28,34 @@ public class TreeBuilder {
         calculateConfusionMatrix(tree, testSet);
 
         return tree;
+    }
+
+    /**
+     * Gets the data set and splits it into training and test set by bootstraping and returning it.
+     */
+    private Pair<DataTuple[], DataTuple[]> getDataSets() {
+        DataTuple[] dataSet = DataSaverLoader.LoadPacManData();
+        List<DataTuple> trainingSet = new ArrayList<>();
+
+        //Generate Training set.
+        Random random = new Random();
+        int seventyPercent = (int) (dataSet.length * 0.7);
+        for (int i = 0; i < seventyPercent; i++) {
+            int randomIndex = random.nextInt(dataSet.length);
+            trainingSet.add(dataSet[randomIndex]);
+        }
+        DataTuple[] trainingSetArray = trainingSet.stream().toArray(DataTuple[]::new);
+
+        //Generate Test set.
+        List<DataTuple> testSet = new ArrayList<>();
+        for (int i = 0; i < dataSet.length; i++) {
+            if (!contains(trainingSetArray, dataSet[i])) {
+                testSet.add(dataSet[i]);
+            }
+        }
+        DataTuple[] testSetArray = testSet.stream().toArray(DataTuple[]::new);
+
+        return new Pair<>(trainingSetArray, testSetArray);
     }
 
     /**
@@ -52,6 +81,21 @@ public class TreeBuilder {
             }
         }
         return node;
+    }
+
+
+    public static <T> boolean contains(final T[] array, final T v) {
+        if (v == null) {
+            for (final T e : array)
+                if (e == null)
+                    return true;
+        } else {
+            for (final T e : array)
+                if (e == v || v.equals(e))
+                    return true;
+        }
+
+        return false;
     }
 
     /**
