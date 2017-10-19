@@ -24,7 +24,6 @@ public class TreeBuilder {
 
         DecisionTree tree = new DecisionTree(generateTree(trainingSet, attributes));
 
-
         calculateConfusionMatrix(tree, testSet);
         tree.printTree();
         return tree;
@@ -69,21 +68,22 @@ public class TreeBuilder {
             int randomIndex = random.nextInt(dataSet.length);
             trainingSet.add(dataSet[randomIndex]);
         }
-        DataTuple[] trainingSetArray = trainingSet.stream().toArray(DataTuple[]::new);
+        DataTuple[] trainingSetArray = trainingSet.toArray(new DataTuple[0]);
 
         //Generate Test set.
         List<DataTuple> testSet = new ArrayList<>();
-        for (int i = 0; i < dataSet.length; i++) {
-            if (!contains(trainingSetArray, dataSet[i])) {
-                testSet.add(dataSet[i]);
+        for (DataTuple aDataSet : dataSet) {
+            if (!contains(trainingSetArray, aDataSet)) {
+                testSet.add(aDataSet);
             }
         }
-        DataTuple[] testSetArray = testSet.stream().toArray(DataTuple[]::new);
+
+        DataTuple[] testSetArray = testSet.toArray(new DataTuple[0]);
 
         return new Pair<>(trainingSetArray, testSetArray);
     }
 
-    public static <T> boolean contains(final T[] array, final T v) {
+    private static <T> boolean contains(final T[] array, final T v) {
         if (v == null) {
             for (final T e : array)
                 if (e == null)
@@ -203,6 +203,15 @@ public class TreeBuilder {
     //Creates and initializes a list with the attributes to include in the tree.
     private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
+        addAttributesGoodAccuracy(attributes);
+        //addAttributesInterestingPacman(attributes);
+        return attributes;
+    }
+
+    /**
+     * Adds a number of attributes that give a interesting pacman gameplay.
+     */
+    private void addAttributesInterestingPacman(ArrayList<Attribute> attributes) {
         // attributes.add(Attribute.isInkyEdible);
         //attributes.add(Attribute.isPinkyEdible);
         attributes.add(Attribute.isSueEdible);
@@ -221,7 +230,32 @@ public class TreeBuilder {
         // attributes.add(Attribute.inkyDist);
         attributes.add(Attribute.pinkyDist);
         //attributes.add(Attribute.sueDist);
-        return attributes;
+    }
+
+    /**
+     * Adds a number of attributes that gives a good accuacy and low error rate.
+     * Accuracy: 47.5%
+     * Error   : 11.5%
+     */
+    private void addAttributesGoodAccuracy(ArrayList<Attribute> attributes) {
+        // attributes.add(Attribute.isInkyEdible);
+        //attributes.add(Attribute.isPinkyEdible);
+        attributes.add(Attribute.isSueEdible);
+        attributes.add(Attribute.blinkyDir);
+        //attributes.add(Attribute.inkyDir);
+        //attributes.add(Attribute.pinkyDir);
+        //attributes.add(Attribute.sueDir);
+        attributes.add(Attribute.numOfPillsLeft);
+        //attributes.add(Attribute.numPowerPillsLeft);
+        // attributes.add(Attribute.pacmanPosition);
+        //attributes.add(Attribute.currentScore); //Might need to revise the discretizier here.
+        //attributes.add(Attribute.currentLevelTime);
+        attributes.add(Attribute.pacmanLivesLeft);
+        attributes.add(Attribute.totalGameTime);
+        //attributes.add(Attribute.blinkyDist);
+        // attributes.add(Attribute.inkyDist);
+        attributes.add(Attribute.pinkyDist);
+        //attributes.add(Attribute.sueDist);
     }
 
     /**

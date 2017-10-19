@@ -29,7 +29,7 @@ public enum Attribute {
     numberOfTotalPillsInLevel(5),
     numberOfTotalPowerPillsInLevel(5);
 
-    private int nbrOfAttributeValues;
+    private final int nbrOfAttributeValues;
 
     Attribute(int value) {
         this.nbrOfAttributeValues = value;

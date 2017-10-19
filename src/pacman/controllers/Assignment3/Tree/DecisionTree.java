@@ -33,7 +33,7 @@ public class DecisionTree {
             node = node.getChildren().get(attributeValue);
         }
         treeTravelerStr.append(":").append(node.getDirection().name());
-        System.out.println(treeTravelerStr);
+        System.out.println(treeTravelerStr); //Prints the traversal to the console.
         return node.getDirection();
     }
 

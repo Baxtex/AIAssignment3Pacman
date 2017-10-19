@@ -22,8 +22,6 @@ class Node {
 
     /**
      * Constructor that sets the attribute that this Node represents.
-     *
-     * @param attribute
      */
     public Node(Attribute attribute) {
         this.attribute = attribute;
@@ -32,7 +30,6 @@ class Node {
     /**
      * Takes the direction as an ordinal and sets this Node's
      * Move direction to the correct Move.
-     * @param direction
      */
     public Node(int direction) {
         if (direction == 0) {
