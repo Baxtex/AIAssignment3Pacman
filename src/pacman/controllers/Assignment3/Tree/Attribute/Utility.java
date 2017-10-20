@@ -34,9 +34,10 @@ public class Utility {
             case sueDist:
                 return tuple.discretizeDistance(tuple.sueDist).ordinal();
             case numberOfTotalPillsInLevel:
-                return tuple.discretizeNumberOfPowerPills(tuple.numberOfTotalPillsInLevel).ordinal();
+                return tuple.discretizeNumberOfPills(tuple.numberOfTotalPillsInLevel).ordinal();
             case numOfPillsLeft:
-                return tuple.discretizeNumberOfPowerPills(tuple.numOfPillsLeft).ordinal();
+                int s = tuple.discretizeNumberOfPills(tuple.numOfPillsLeft).ordinal();
+                return s;
             case numberOfTotalPowerPillsInLevel:
                 return tuple.discretizeNumberOfPowerPills(tuple.numberOfTotalPowerPillsInLevel).ordinal();
             case numPowerPillsLeft:

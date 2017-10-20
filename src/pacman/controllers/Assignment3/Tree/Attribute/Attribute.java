@@ -10,24 +10,26 @@ public enum Attribute {
     isInkyEdible(2),
     isPinkyEdible(2),
     isSueEdible(2),
-    blinkyDist(6),
-    inkyDist(6),
-    pinkyDist(6),
-    sueDist(6),
+
+    blinkyDist(4),
+    inkyDist(4),
+    pinkyDist(4),
+    sueDist(4),
+
     blinkyDir(4),
     inkyDir(4),
     pinkyDir(4),
     sueDir(4),
     pacmanPosition(5),
     pacmanLivesLeft(4),
-    currentScore(5),
-    totalGameTime(5),
-    currentLevelTime(5),
-    numOfPillsLeft(5),
-    numPowerPillsLeft(5),
-    numberOfNodesInLevel(5),
-    numberOfTotalPillsInLevel(5),
-    numberOfTotalPowerPillsInLevel(5);
+    currentScore(3),
+    totalGameTime(3),
+    currentLevelTime(3),
+    numOfPillsLeft(3),
+    numPowerPillsLeft(3),
+    numberOfNodesInLevel(3),
+    numberOfTotalPillsInLevel(3),
+    numberOfTotalPowerPillsInLevel(3);
 
     private final int nbrOfAttributeValues;
 
