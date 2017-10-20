@@ -209,30 +209,6 @@ public class TreeBuilder {
     }
 
     /**
-     * Adds a number of attributes that give a interesting pacman gameplay.
-     */
-    private void addAttributesInterestingPacman(ArrayList<Attribute> attributes) {
-        // attributes.add(Attribute.isInkyEdible);
-        //attributes.add(Attribute.isPinkyEdible);
-        attributes.add(Attribute.isSueEdible);
-        attributes.add(Attribute.blinkyDir);
-        //attributes.add(Attribute.inkyDir);
-        //attributes.add(Attribute.pinkyDir);
-        //attributes.add(Attribute.sueDir);
-        attributes.add(Attribute.numOfPillsLeft);
-        //attributes.add(Attribute.numPowerPillsLeft);
-        // attributes.add(Attribute.pacmanPosition);
-        //attributes.add(Attribute.currentScore); //Might need to revise the discretizier here.
-        //attributes.add(Attribute.currentLevelTime);
-        attributes.add(Attribute.pacmanLivesLeft);
-        attributes.add(Attribute.totalGameTime);
-        //attributes.add(Attribute.blinkyDist);
-        // attributes.add(Attribute.inkyDist);
-        attributes.add(Attribute.pinkyDist);
-        //attributes.add(Attribute.sueDist);
-    }
-
-    /**
      * Adds a number of attributes that gives a good accuacy and low error rate.
      * Accuracy: 47.5%
      * Error   : 11.5%
@@ -329,16 +305,16 @@ public class TreeBuilder {
      * Calculates the average information gain on all the tuples in the data set.
      */
     private double calculateAverageInformationGain(DataTuple[] set) {
-        int totalNumberOfTuples = set.length;
         double informationGain = 0.0;
+        if (set.length == 0) {
+            return informationGain;
+        }
         //For every value of the class atrribute, 4 directions.
         for (int i = 0; i < 4; i++) {
             int finalI = i;
             long nbrOfThisDirection = Arrays.stream(set).filter(a -> a.DirectionChosen.ordinal() == finalI).count();
-            double result = ((double) nbrOfThisDirection / (double) totalNumberOfTuples);
-            if (result != 0) {
-                informationGain += (-result * log2(result));
-            }
+            double result = ((double) nbrOfThisDirection / (double) set.length);
+            informationGain += (-result * log2(result));
         }
         return informationGain;
     }
@@ -347,14 +323,13 @@ public class TreeBuilder {
      * Calculates the attribute gain for a single attribute.
      */
     private double calculateAttributeGain(DataTuple[] set, Attribute attribute) {
-        int totalNumberOfTuples = set.length;
         double informationGain = 0.0;
-        int nbrOfSubsets = attribute.getNbrOfAttributeValues();
-
+        if (set.length == 0) {
+            return informationGain;
+        }
         //For all attribute values, i e true, false, up, right, down etc.
-        for (int i = 0; i < nbrOfSubsets; i++) {
+        for (int i = 0; i < attribute.getNbrOfAttributeValues(); i++) {
             List<DataTuple> subSetAttributeValue = getSubset(set, attribute, i);
-
             double attributeClassValue = 0.0;
             //For every value of the class atrribute, 4 directions.
             for (int j = 0; j < 4; j++) {
@@ -365,11 +340,7 @@ public class TreeBuilder {
                     attributeClassValue += (-result * log2(result));
                 }
             }
-
-            double result = ((double) subSetAttributeValue.size() / (double) totalNumberOfTuples) * attributeClassValue;
-            if (result != 0) {
-                informationGain += result;
-            }
+            informationGain += ((double) subSetAttributeValue.size() / (double) set.length) * attributeClassValue;
         }
         return informationGain;
     }
