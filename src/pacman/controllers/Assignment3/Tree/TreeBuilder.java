@@ -30,31 +30,6 @@ public class TreeBuilder {
     }
 
     /**
-     * Generates the tree recursivly in a depth first approach.
-     */
-    private Node generateTree(DataTuple[] set, ArrayList<Attribute> attributes) {
-        Node node;
-        if (allTuplesSameClass(set)) {
-            node = new Node(set[0].DirectionChosen.ordinal());
-        } else if (attributes.isEmpty()) {
-            node = new Node(getMajorityClass(set));
-        } else {
-            Attribute attribute = attributeSelectionC45(set, attributes);
-            node = new Node(attribute);
-
-            for (int i = 0; i < attribute.getNbrOfAttributeValues(); i++) {
-                List<DataTuple> subSet = getSubset(set, attribute, i);
-                if (subSet.isEmpty()) {
-                    node.addChild(new Node(getMajorityClass(set)));
-                } else {
-                    node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes));
-                }
-            }
-        }
-        return node;
-    }
-
-    /**
      * Gets the data set and splits it into training and test set by bootstraping and returning it.
      */
     private Pair<DataTuple[], DataTuple[]> getDataSetsBootstraping() {
@@ -83,19 +58,6 @@ public class TreeBuilder {
         return new Pair<>(trainingSetArray, testSetArray);
     }
 
-    private static <T> boolean contains(final T[] array, final T v) {
-        if (v == null) {
-            for (final T e : array)
-                if (e == null)
-                    return true;
-        } else {
-            for (final T e : array)
-                if (e == v || v.equals(e))
-                    return true;
-        }
-
-        return false;
-    }
 
     /**
      * Splits the data set by 70/30.
@@ -118,120 +80,55 @@ public class TreeBuilder {
     }
 
     /**
-     * Selects and returns a subset from the given set for certain attribute value.
+     * Creates and initializes a list with the attributes to include in the tree.
+     * Uncomment and comment to choose which to use.
      */
-    private List<DataTuple> getSubset(DataTuple[] trainingSet, Attribute attribute, int finalI) {
-        return Arrays.stream(trainingSet).filter(a -> getAttributeValue(a, attribute) == finalI).collect(Collectors.toList());
-    }
-
-    /**
-     * Builds and calculates the confusion matrix.
-     */
-    private void calculateConfusionMatrix(DecisionTree tree, DataTuple[] set) {
-
-        //Build the confusionmatrix.
-        int[][] confusionMatrix = new int[5][5];
-        for (DataTuple dataTuple : set) {
-            int testTupleClassValue = dataTuple.DirectionChosen.ordinal();
-            int classifierClassValue = tree.findMove(dataTuple).ordinal();
-            if (testTupleClassValue == classifierClassValue) {
-                confusionMatrix[testTupleClassValue][testTupleClassValue] += 1;
-            } else {
-                confusionMatrix[classifierClassValue][testTupleClassValue] += 1;
-            }
-        }
-
-        //Compute the totals:
-        int accuracySum = 0;
-        int errorSum = 0;
-        int lastColValue = 0;
-        for (int i = 0; i < confusionMatrix.length; i++) {
-            int totalRowValue = 0;
-            for (int j = 0; j < confusionMatrix[i].length; j++) {
-                totalRowValue += confusionMatrix[i][j];
-                lastColValue += confusionMatrix[j][i];
-            }
-            confusionMatrix[i][4] = totalRowValue;
-            confusionMatrix[4][i] = lastColValue;
-            lastColValue = 0;
-
-            if (confusionMatrix.length != i + 1) {
-                accuracySum += confusionMatrix[i][i];
-                errorSum += confusionMatrix[i][3 - i];
-            }
-        }
-        confusionMatrix[4][4] = set.length;
-
-        printConfusionMatrix(confusionMatrix, accuracySum, errorSum);
-    }
-
-    private void printConfusionMatrix(int[][] confusionMatrix, double accuracySum, double errorSum) {
-        String[] leftLabels = new String[]{"Up  ", "Right  ", "Down  ", "Left  ", "  Totals  "};
-        String[] leftClassLabel = new String[]{"Pr    ", "re ", "di  ", "ct  ", ""};
-
-        System.out.println("\nActual       Up  Right Down Left | Total");
-        System.out.println("___________________________________|______");
-        for (int i = 0; i < confusionMatrix.length; i++) {
-            if (i == 4) {
-                System.out.println("_____________________________________|______");
-            }
-            System.out.print(leftClassLabel[i] + " " + leftLabels[i] + "|");
-
-            for (int j = 0; j < confusionMatrix[i].length; j++) {
-
-                if (j == 4) {
-                    System.out.print(" | ");
-                }
-
-                if (confusionMatrix[i][j] == 0) {
-                    System.out.print(" 000 ");
-                } else {
-                    System.out.print(" " + confusionMatrix[i][j] + " ");
-                }
-            }
-
-            System.out.println();
-        }
-
-        double accuracyRes = accuracySum / (double) confusionMatrix[4][4];
-        double errorRes = errorSum / (double) confusionMatrix[4][4];
-        System.out.println("Accuracy: " + String.format("%.1f", accuracyRes * 100) + "%");
-        System.out.println("Error   : " + String.format("%.1f", errorRes * 100) + "% \n");
-
-    }
-
-    //Creates and initializes a list with the attributes to include in the tree.
     private ArrayList<Attribute> initializeAttributesList() {
         ArrayList<Attribute> attributes = new ArrayList<>();
-        addAttributesGoodAccuracy(attributes);
-        //addAttributesInterestingPacman(attributes);
+        attributes.add(Attribute.isSueEdible);
+        attributes.add(Attribute.blinkyDir);
+        attributes.add(Attribute.numOfPillsLeft);
+        attributes.add(Attribute.pacmanLivesLeft);
+        attributes.add(Attribute.totalGameTime);
+        attributes.add(Attribute.pinkyDist);
+        //attributes.add(Attribute.inkyDir);
+        //attributes.add(Attribute.pinkyDir);
+        //attributes.add(Attribute.sueDir);
+        //attributes.add(Attribute.isInkyEdible);
+        //attributes.add(Attribute.isPinkyEdible);
+        //attributes.add(Attribute.numPowerPillsLeft);
+        //attributes.add(Attribute.pacmanPosition);
+        //attributes.add(Attribute.currentScore);
+        //attributes.add(Attribute.currentLevelTime);
+        //attributes.add(Attribute.blinkyDist);
+        //attributes.add(Attribute.inkyDist);
+        //attributes.add(Attribute.sueDist);
         return attributes;
     }
 
     /**
-     * Adds a number of attributes that gives a good accuacy and low error rate.
-     * Accuracy: 47.5%
-     * Error   : 11.5%
+     * Generates the tree recursivly in a depth first approach.
      */
-    private void addAttributesGoodAccuracy(ArrayList<Attribute> attributes) {
-        // attributes.add(Attribute.isInkyEdible);
-        //attributes.add(Attribute.isPinkyEdible);
-        attributes.add(Attribute.isSueEdible);
-        attributes.add(Attribute.blinkyDir);
-        //attributes.add(Attribute.inkyDir);
-        //attributes.add(Attribute.pinkyDir);
-        //attributes.add(Attribute.sueDir);
-        attributes.add(Attribute.numOfPillsLeft);
-        //attributes.add(Attribute.numPowerPillsLeft);
-        // attributes.add(Attribute.pacmanPosition);
-        //attributes.add(Attribute.currentScore); //Might need to revise the discretizier here.
-        //attributes.add(Attribute.currentLevelTime);
-        attributes.add(Attribute.pacmanLivesLeft);
-        attributes.add(Attribute.totalGameTime);
-        //attributes.add(Attribute.blinkyDist);
-        // attributes.add(Attribute.inkyDist);
-        attributes.add(Attribute.pinkyDist);
-        //attributes.add(Attribute.sueDist);
+    private Node generateTree(DataTuple[] set, ArrayList<Attribute> attributes) {
+        Node node;
+        if (allTuplesSameClass(set)) {
+            node = new Node(set[0].DirectionChosen.ordinal());
+        } else if (attributes.isEmpty()) {
+            node = new Node(getMajorityClass(set));
+        } else {
+            Attribute attribute = attributeSelectionC45(set, attributes);
+            node = new Node(attribute);
+
+            for (int attributeValue = 0; attributeValue < attribute.getNbrOfAttributeValues(); attributeValue++) {
+                List<DataTuple> subSet = getSubset(set, attribute, attributeValue);
+                if (subSet.isEmpty()) {
+                    node.addChild(new Node(getMajorityClass(set)));
+                } else {
+                    node.addChild(generateTree(subSet.toArray(new DataTuple[subSet.size()]), attributes));
+                }
+            }
+        }
+        return node;
     }
 
     /**
@@ -346,6 +243,89 @@ public class TreeBuilder {
     }
 
     /**
+     * Selects and returns a subset from the given set for certain attribute value.
+     */
+    private List<DataTuple> getSubset(DataTuple[] set, Attribute attribute, int attributeValue) {
+        return Arrays.stream(set).filter(a -> getAttributeValue(a, attribute) == attributeValue).collect(Collectors.toList());
+    }
+
+    /**
+     * Builds and calculates the confusion matrix.
+     */
+    private void calculateConfusionMatrix(DecisionTree tree, DataTuple[] set) {
+
+        //Build the confusion matrix.
+        int[][] confusion = new int[5][5];
+        for (DataTuple dataTuple : set) {
+            int testTupleClassValue = dataTuple.DirectionChosen.ordinal();
+            int classifierClassValue = tree.findMove(dataTuple).ordinal();
+            if (testTupleClassValue == classifierClassValue) {
+                confusion[testTupleClassValue][testTupleClassValue] += 1;
+            } else {
+                confusion[classifierClassValue][testTupleClassValue] += 1;
+            }
+        }
+
+        //Compute the totals:
+        int tpFpSum = 0;
+        int fnFpSum = 0;
+        int colSum = 0;
+        for (int i = 0; i < confusion.length; i++) {
+            int rowSum = 0;
+            for (int j = 0; j < confusion[i].length; j++) {
+                rowSum += confusion[i][j];
+                colSum += confusion[j][i];
+            }
+            confusion[i][4] = rowSum;
+            confusion[4][i] = colSum;
+            colSum = 0;
+
+            if (confusion.length != i + 1) {
+                tpFpSum += confusion[i][i];
+                fnFpSum += confusion[i][3 - i];
+            }
+        }
+        confusion[4][4] = set.length;
+
+        printConfusionMatrix(confusion, tpFpSum, fnFpSum);
+    }
+
+    private void printConfusionMatrix(int[][] confusionMatrix, double accuracySum, double errorSum) {
+        String[] leftLabels = new String[]{"Up  ", "Right  ", "Down  ", "Left  ", "  Totals  "};
+        String[] leftClassLabel = new String[]{"Pr    ", "re ", "di  ", "ct  ", ""};
+
+        System.out.println("\nActual       Up  Right Down Left | Total");
+        System.out.println("___________________________________|______");
+        for (int i = 0; i < confusionMatrix.length; i++) {
+            if (i == 4) {
+                System.out.println("_____________________________________|______");
+            }
+            System.out.print(leftClassLabel[i] + " " + leftLabels[i] + "|");
+
+            for (int j = 0; j < confusionMatrix[i].length; j++) {
+
+                if (j == 4) {
+                    System.out.print(" | ");
+                }
+
+                if (confusionMatrix[i][j] == 0) {
+                    System.out.print(" 000 ");
+                } else {
+                    System.out.print(" " + confusionMatrix[i][j] + " ");
+                }
+            }
+
+            System.out.println();
+        }
+
+        double accuracyRate = accuracySum / (double) confusionMatrix[4][4];
+        double errorRate = errorSum / (double) confusionMatrix[4][4];
+        System.out.println("Accuracy: " + String.format("%.1f", accuracyRate * 100) + "%");
+        System.out.println("Error   : " + String.format("%.1f", errorRate * 100) + "% \n");
+
+    }
+
+    /**
      * Returns the log2 of a double.
      */
     private double log2(double n) {
@@ -363,5 +343,21 @@ public class TreeBuilder {
             this.first = first;
             this.second = second;
         }
+    }
+
+    /**
+     * Checks wherever a array contains a value.
+     */
+    private static <T> boolean contains(final T[] array, final T v) {
+        if (v == null) {
+            for (final T e : array)
+                if (e == null)
+                    return true;
+        } else {
+            for (final T e : array)
+                if (e == v || v.equals(e))
+                    return true;
+        }
+        return false;
     }
 }

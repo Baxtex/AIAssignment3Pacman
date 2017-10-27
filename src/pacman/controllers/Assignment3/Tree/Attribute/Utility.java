@@ -36,8 +36,7 @@ public class Utility {
             case numberOfTotalPillsInLevel:
                 return tuple.discretizeNumberOfPills(tuple.numberOfTotalPillsInLevel).ordinal();
             case numOfPillsLeft:
-                int s = tuple.discretizeNumberOfPills(tuple.numOfPillsLeft).ordinal();
-                return s;
+                return tuple.discretizeNumberOfPills(tuple.numOfPillsLeft).ordinal();
             case numberOfTotalPowerPillsInLevel:
                 return tuple.discretizeNumberOfPowerPills(tuple.numberOfTotalPowerPillsInLevel).ordinal();
             case numPowerPillsLeft:
