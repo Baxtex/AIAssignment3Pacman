@@ -87,10 +87,13 @@ public class TreeBuilder {
         ArrayList<Attribute> attributes = new ArrayList<>();
         attributes.add(Attribute.isSueEdible);
         attributes.add(Attribute.blinkyDir);
-        attributes.add(Attribute.numOfPillsLeft);
-        attributes.add(Attribute.pacmanLivesLeft);
-        attributes.add(Attribute.totalGameTime);
-        attributes.add(Attribute.pinkyDist);
+        attributes.add(Attribute.blinkyDist);
+        attributes.add(Attribute.inkyDist);
+
+        //attributes.add(Attribute.numOfPillsLeft);
+        //attributes.add(Attribute.pinkyDist);
+        //attributes.add(Attribute.pacmanLivesLeft);
+        //attributes.add(Attribute.totalGameTime);
         //attributes.add(Attribute.inkyDir);
         //attributes.add(Attribute.pinkyDir);
         //attributes.add(Attribute.sueDir);
@@ -100,8 +103,6 @@ public class TreeBuilder {
         //attributes.add(Attribute.pacmanPosition);
         //attributes.add(Attribute.currentScore);
         //attributes.add(Attribute.currentLevelTime);
-        //attributes.add(Attribute.blinkyDist);
-        //attributes.add(Attribute.inkyDist);
         //attributes.add(Attribute.sueDist);
         return attributes;
     }
