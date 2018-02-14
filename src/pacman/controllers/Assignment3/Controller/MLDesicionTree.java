@@ -11,14 +11,14 @@ import static pacman.game.Constants.MOVE;
  * Controller that decides what move Pacman should do based on the decision in a decision tree built
  * with machine learning.
  */
-public class MachineLearningPacman extends Controller<MOVE> {
+public class MLDesicionTree extends Controller<MOVE> {
 
     private final DecisionTree tree;
 
     /**
      * Constructor that instantiates a new TreeBuilder that builds a decision tree.
      */
-    public MachineLearningPacman() {
+    public MLDesicionTree() {
         TreeBuilder treeBuilder = new TreeBuilder();
         tree = treeBuilder.buildDecisionTree();
     }
