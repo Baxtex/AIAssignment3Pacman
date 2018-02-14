@@ -1,12 +1,13 @@
 package pacman.controllers.Assignment3.NeuralNetwork;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class Neuron {
 
     private double value;
-        private List<Double> synapses = new ArrayList<Double>();
+    private double[] synapses;
 
     public void setValue(double value) {
         this.value = value;
@@ -16,7 +17,10 @@ public class Neuron {
         return value;
     }
 
-    public void addSynapseWeight(double weight) {
-        synapses.add(weight);
+    public void setSynapseWeights(double[] synapses) {
+        this.synapses = synapses;
+    }
+    public double getSpecificSynapseWeight(int index){
+        return synapses[index];
     }
 }

@@ -1,6 +1,7 @@
 package pacman;
 
 import pacman.controllers.Assignment3.Controller.MLDesicionTree;
+import pacman.controllers.Assignment3.Controller.MLNeuralNetwork;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
 import pacman.controllers.examples.StarterGhosts;
@@ -35,7 +36,7 @@ public class Executor {
 
         //Switch between these:
         //exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual); //Standard game!
-        exec.runGame(new MLDesicionTree(), new StarterGhosts(), visual, 75); //Custom pacman that is run by ML.
+        exec.runGame(new MLNeuralNetwork(), new StarterGhosts(), visual, 75); //Custom pacman that is run by ML.
 
 
         //exec.runExperiment(new RandomPacMan(),new RandomGhosts(),numTrials);
